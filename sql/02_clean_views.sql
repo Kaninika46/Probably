@@ -90,8 +90,12 @@ INSERT INTO non_product_codes VALUES
     ('D',            'discount'),                      -- "Discount"
     ('TEST001',      'test'),                          -- "This is a test product."
     ('TEST002',      'test'),                          -- "This is a test product."
-    ('S',            'samples'),                       -- "SAMPLES": a charge, not a catalogue item
-    ('gift_0001_10', 'gift voucher'),                  -- vouchers are prepaid money, not goods
+    -- "SAMPLES": these lines are adjustments, not product sales.
+    ('S',            'samples'),
+    -- Gift vouchers are a payment method, not goods. A voucher is sold once and
+    -- later redeemed against real products, so counting both the voucher
+    -- purchase and the products it pays for would double-count revenue.
+    ('gift_0001_10', 'gift voucher'),
     ('gift_0001_20', 'gift voucher'),
     ('gift_0001_30', 'gift voucher'),
     ('gift_0001_40', 'gift voucher'),

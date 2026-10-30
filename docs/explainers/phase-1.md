@@ -21,7 +21,21 @@ Source: `reports/tables/cleaning_funnel.csv`; chart: `reports/figures/cleaning_f
 - **Step 2:** some lines appear twice even within one sheet. We keep one copy of each.
 - **Step 3:** invoices starting with `C` are cancellations. They go to a separate `returns` view instead of being thrown away. Their revenue is negative because their quantities are negative.
 - **Step 4:** a real sale must have a positive quantity and a positive price. Lines with zero or negative values are stock corrections or write-offs.
-- **Step 5:** some stock codes aren't products, for example `POST` (postage), `M` (manual adjustments) and `AMAZONFEE`. We found them by listing every code that does not look like a normal product code (5 digits, sometimes followed by letters) and reading its description. The 21 excluded codes, with their rows and revenue, are in `reports/tables/non_product_codes.csv`.
+- **Step 5:** some stock codes aren't products, for example `POST` (postage), `M` (manual adjustments) and `AMAZONFEE`. We found them by listing every code that does not look like a normal product code (5 digits, sometimes followed by letters) and reading its description. Two groups needed a reason beyond "the description says it isn't a product":
+  - **Samples (`S`)** are adjustments, not product sales.
+  - **Gift vouchers (7 codes, `gift_0001_10` … `gift_0001_80`)** are a payment method, not goods. A voucher is bought once and later spent on real products. Counting both the voucher purchase and the products it pays for would double-count the same money.
+
+  The 21 excluded codes, with their rows, revenue and share of revenue, are in `reports/tables/non_product_codes.csv`, and the totals per reason are in `reports/tables/non_product_reasons.csv`.
+
+  | Reason | Codes | Rows | Revenue (£) | Share of revenue reaching rule 5 |
+  |---|---|---|---|---|
+  | postage | 3 | 3,533 | 448,962.53 | 2.1926% |
+  | manual adjustment | 5 | 891 | 359,932.33 | 1.7578% |
+  | fee | 2 | 37 | 20,987.04 | 0.1025% |
+  | gift voucher | 7 | 77 | 1,756.17 | 0.0086% |
+  | discount | 1 | 5 | 397.89 | 0.0019% |
+  | test | 2 | 10 | 226.00 | 0.0011% |
+  | samples | 1 | 3 | 136.85 | 0.0007% |
 - **Step 6:** some sales have no customer ID. We keep them in `clean_sales` so total revenue is complete, but every customer-level table will leave them out (`has_customer` = false).
 
 **3. Look at the data (EDA).** `src/eda.py` draws three figures from `clean_sales`:
@@ -46,4 +60,4 @@ The raw table is never edited, so we can always check our work against the origi
 They are real sales, so dropping them would understate the business's revenue. But we can't build customer features for a row with no customer. So we keep them in `clean_sales` for totals (£19,643,861.64) and leave them out of every customer table. The revenue that has a customer is £17,068,582.74, and step 6 of the funnel shows the difference: 226,761 rows and £2,575,278.90.
 
 **5. How did you decide which stock codes are not products?**
-We listed every code that doesn't match the normal pattern (5 digits, optionally followed by letters) among rows that survived steps 1–4, then read each one's description. Postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code and test products were clearly not merchandise. Samples (`S`) and gift vouchers were judgement calls. We excluded vouchers because they are prepaid money rather than goods. Codes with real product descriptions, like the `DCGS…` pet products, were kept. Together, the 21 excluded codes cover 4,556 rows and £832,398.81, and each code's numbers are in `reports/tables/non_product_codes.csv`.
+We listed every code that doesn't match the normal pattern (5 digits, optionally followed by letters) among rows that survived steps 1–4, then read each one's description. Postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code and test products were clearly not merchandise. Samples (`S`) are adjustments, not product sales. Gift vouchers are a payment method: counting both the voucher purchase and its later redemption against real products would double-count revenue. The 7 voucher codes are only 0.0086% of the revenue that reached rule 5 (`reports/tables/non_product_reasons.csv`), so the decision is about correctness, not about the size of the effect. Codes with real product descriptions, like the `DCGS…` pet products, were kept. Together, the 21 excluded codes cover 4,556 rows and £832,398.81, and each code's numbers are in `reports/tables/non_product_codes.csv`.

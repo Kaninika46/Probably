@@ -97,24 +97,51 @@ def save_funnel_table(con) -> None:
 
 
 def save_non_product_codes_table(con) -> None:
-    """List each excluded stock code with its description, rows and revenue.
+    """List each excluded stock code with its description, rows, revenue and share.
 
     The counts are taken from the rows that reached rule 5, so they add up to
-    the rule 5 line of the funnel.
+    the rule 5 line of the funnel. revenue_share_pct is the code's revenue as
+    a percentage of all revenue that reached rule 5 (the "rows before" of that
+    step), the same base the funnel uses for its rule 5 share.
     """
+    rows, total_revenue = count_rows_and_revenue(con, "cleaning_step4_positive")
     codes = con.execute("""
         SELECT
             n.stock_code,
             n.reason,
             MODE(s.description) AS description,
             COUNT(s.stock_code) AS n_rows,
-            ROUND(COALESCE(SUM(s.quantity * s.price), 0), 2) AS revenue
+            ROUND(COALESCE(SUM(s.quantity * s.price), 0), 2) AS revenue,
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $total, 4) AS revenue_share_pct
         FROM non_product_codes AS n
         LEFT JOIN cleaning_step4_positive AS s ON s.stock_code = n.stock_code
         GROUP BY n.stock_code, n.reason
         ORDER BY n_rows DESC
-    """).df()
+    """, {"total": total_revenue}).df()
     codes.to_csv(config.TABLES_DIR / "non_product_codes.csv", index=False)
+
+
+def save_non_product_reasons_table(con) -> None:
+    """Same as above, but added up per reason (postage, gift voucher, ...).
+
+    We let SQL do the adding up so that group totals, such as the share of all
+    seven gift-voucher codes together, come from the data and not from hand
+    arithmetic.
+    """
+    rows, total_revenue = count_rows_and_revenue(con, "cleaning_step4_positive")
+    reasons = con.execute("""
+        SELECT
+            n.reason,
+            COUNT(DISTINCT n.stock_code) AS n_codes,
+            COUNT(s.stock_code) AS n_rows,
+            ROUND(COALESCE(SUM(s.quantity * s.price), 0), 2) AS revenue,
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $total, 4) AS revenue_share_pct
+        FROM non_product_codes AS n
+        LEFT JOIN cleaning_step4_positive AS s ON s.stock_code = n.stock_code
+        GROUP BY n.reason
+        ORDER BY revenue DESC
+    """, {"total": total_revenue}).df()
+    reasons.to_csv(config.TABLES_DIR / "non_product_reasons.csv", index=False)
 
 
 def save_funnel_chart(con) -> None:
@@ -146,6 +173,7 @@ def run() -> None:
     fill_data_quality_log(con)
     save_funnel_table(con)
     save_non_product_codes_table(con)
+    save_non_product_reasons_table(con)
     save_funnel_chart(con)
     con.close()
 

@@ -1,22 +1,22 @@
-stock_code,reason,description,n_rows,revenue
-POST,postage,POSTAGE,1851,125682.42
-DOT,postage,DOTCOM POSTAGE,1415,309854.11
-M,manual adjustment,Manual,846,339226.24
-C2,postage,CARRIAGE,267,13426.0
-ADJUST,manual adjustment,Adjustment by john on 26/01/2010 16,36,8897.93
-BANK CHARGES,fee,Bank Charges,34,519.24
-gift_0001_20,gift voucher,Dotcomgiftshop Gift Voucher £20.00,26,471.06
-gift_0001_30,gift voucher,Dotcomgiftshop Gift Voucher £30.00,24,610.09
-gift_0001_10,gift voucher,Dotcomgiftshop Gift Voucher £10.00,14,126.21
-TEST001,test,This is a test product.,9,225.0
-gift_0001_50,gift voucher,Dotcomgiftshop Gift Voucher £50.00,6,253.59
-gift_0001_40,gift voucher,Dotcomgiftshop Gift Voucher £40.00,5,166.09
-m,manual adjustment,Manual,5,15.05
-D,discount,Discount,5,397.89
-S,samples,SAMPLES,3,136.85
-ADJUST2,manual adjustment,Adjustment by Peter on Jun 25 2010 ,3,731.05
-AMAZONFEE,fee,AMAZON FEE,3,20467.8
-TEST002,test,This is a test product.,1,1.0
-gift_0001_80,gift voucher,Dotcomgiftshop Gift Voucher £80.00,1,69.56
-gift_0001_70,gift voucher,Dotcomgiftshop Gift Voucher £70.00,1,59.57
-B,manual adjustment,Adjust bad debt,1,11062.06
+stock_code,reason,description,n_rows,revenue,revenue_share_pct
+POST,postage,POSTAGE,1851,125682.42,0.6138
+DOT,postage,DOTCOM POSTAGE,1415,309854.11,1.5132
+M,manual adjustment,Manual,846,339226.24,1.6567
+C2,postage,CARRIAGE,267,13426.0,0.0656
+ADJUST,manual adjustment,Adjustment by john on 26/01/2010 16,36,8897.93,0.0435
+BANK CHARGES,fee,Bank Charges,34,519.24,0.0025
+gift_0001_20,gift voucher,Dotcomgiftshop Gift Voucher £20.00,26,471.06,0.0023
+gift_0001_30,gift voucher,Dotcomgiftshop Gift Voucher £30.00,24,610.09,0.003
+gift_0001_10,gift voucher,Dotcomgiftshop Gift Voucher £10.00,14,126.21,0.0006
+TEST001,test,This is a test product.,9,225.0,0.0011
+gift_0001_50,gift voucher,Dotcomgiftshop Gift Voucher £50.00,6,253.59,0.0012
+D,discount,Discount,5,397.89,0.0019
+gift_0001_40,gift voucher,Dotcomgiftshop Gift Voucher £40.00,5,166.09,0.0008
+m,manual adjustment,Manual,5,15.05,0.0001
+S,samples,SAMPLES,3,136.85,0.0007
+AMAZONFEE,fee,AMAZON FEE,3,20467.8,0.1
+ADJUST2,manual adjustment,Adjustment by Peter on Jun 25 2010 ,3,731.05,0.0036
+B,manual adjustment,Adjust bad debt,1,11062.06,0.054
+gift_0001_70,gift voucher,Dotcomgiftshop Gift Voucher £70.00,1,59.57,0.0003
+TEST002,test,This is a test product.,1,1.0,0.0
+gift_0001_80,gift voucher,Dotcomgiftshop Gift Voucher £80.00,1,69.56,0.0003

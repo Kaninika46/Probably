@@ -46,9 +46,11 @@
 
 **Decisions made in this phase**
 - Rule 1 drops a row from the second sheet when the first sheet has an identical row in every other column.
-- Rule 5 excludes 21 stock codes (listed in `reports/tables/non_product_codes.csv`): postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code, test products, `S` (samples) and seven gift-voucher codes. Excluding `S` and the gift vouchers is a judgement call that the user is checking.
+- Rule 5 excludes 21 stock codes (listed in `reports/tables/non_product_codes.csv`, totals per reason in `reports/tables/non_product_reasons.csv`): postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code, test products, `S` (samples) and seven gift-voucher codes.
+  - The user confirmed excluding `S` and the gift vouchers. Samples are adjustments, not product sales. Vouchers are a payment method, so counting the voucher purchase and its later redemption would double-count revenue.
+  - The 7 voucher codes are 0.0086% of the revenue that reached rule 5.
+- `revenue_share_pct` in both non-product tables uses the revenue that reached rule 5 as its base, the same base as the funnel's rule 5 share.
 - `revenue_affected` = revenue before the step minus revenue after. It is negative for steps 3 and 4 because the rows removed there have negative quantities or prices.
 
 **Open items**
-- The user to confirm the `S` and gift-voucher exclusions in rule 5.
 - `docs/architecture.png` is still missing.
