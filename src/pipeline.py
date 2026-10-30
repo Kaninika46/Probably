@@ -11,6 +11,7 @@ import argparse
 from src import (
     clean,
     eda,
+    evaluate,
     export_app_db,
     features,
     ingest,
@@ -58,6 +59,11 @@ def run_phase_6() -> None:
     export_app_db.run()
 
 
+def run_phase_7() -> None:
+    """Evaluate the spaCy NL engine on dev questions and populate eval_results."""
+    evaluate.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
@@ -65,6 +71,7 @@ PHASES = {
     4: run_phase_4,
     5: run_phase_5,
     6: run_phase_6,
+    7: run_phase_7,
 }
 
 

@@ -1,0 +1,45 @@
+area,metric,value,detail
+cleaning,raw_rows,1067371.0,Total rows in raw_transactions
+cleaning,raw_net_revenue_gbp,19287250.57,Net revenue in raw_transactions
+cleaning,clean_sales_rows,1003357.0,Rows surviving rules 1-5
+cleaning,clean_sales_with_customer_rows,776596.0,Rows surviving rules 1-6
+cleaning,clean_sales_revenue_gbp,19643861.64,Total clean product revenue
+cleaning,clean_sales_customer_revenue_gbp,17068582.74,Clean product revenue with customer_id
+cleaning,distinct_customers,5852.0,Unique customer_id count in clean_sales
+snapshots,S1_n_customers,3256.0,Active customers in S1
+snapshots,S1_base_lapse_rate_pct,41.4,90-day base lapse rate in S1
+snapshots,S2_n_customers,3247.0,Active customers in S2
+snapshots,S2_base_lapse_rate_pct,42.38,90-day base lapse rate in S2
+snapshots,S3_n_customers,3961.0,Active customers in S3
+clustering,kmeans_k5_silhouette,0.3089,K-Means K=5 silhouette on S3
+clustering,gmm_spherical_k5_bic,28003.9,GMM spherical K=5 BIC on S3
+clustering,gmm_spherical_k5_aic,27853.08,GMM spherical K=5 AIC on S3
+clustering,gmm_spherical_k5_silhouette,0.3015,GMM spherical K=5 silhouette on S3
+clustering,bootstrap_ari_median,0.8674,B=100 bootstrap ARI median vs reference
+clustering,bootstrap_ari_iqr,0.0977,B=100 bootstrap ARI IQR
+clustering,min_segment_jaccard_mean,0.8449,Lowest per-segment mean Jaccard (At-Risk)
+probability_informativeness,gmm_boundary_share_pct,12.5,% of S3 customers with max(p) < 0.60 (gmm)
+probability_informativeness,gmm_mean_normalised_entropy,0.2526,Mean normalised Shannon entropy (gmm)
+probability_informativeness,gmm_mean_max_p,0.8371,Mean maximum membership probability (gmm)
+probability_informativeness,bootstrap_boundary_share_pct,3.84,% of S3 customers with max(p) < 0.60 (bootstrap)
+probability_informativeness,bootstrap_mean_normalised_entropy,0.1041,Mean normalised Shannon entropy (bootstrap)
+probability_informativeness,bootstrap_mean_max_p,0.9329,Mean maximum membership probability (bootstrap)
+tree,n_leaves,16.0,Number of leaves in depth-4 surrogate tree
+tree,train_fidelity_pct,89.72,70% train split agreement with GMM
+tree,test_fidelity_pct,86.8,30% held-out test split agreement with GMM
+lapse,s2_logistic_calibrated_brier,0.2034,S2 Brier score (logistic_calibrated)
+lapse,s2_logistic_calibrated_roc_auc,0.739,S2 ROC-AUC (logistic_calibrated)
+lapse,s2_logistic_calibrated_log_loss,0.587,S2 log loss (logistic_calibrated)
+lapse,s2_logistic_calibrated_ece_10_bins,0.0343,S2 10-bin ECE (logistic_calibrated)
+lapse,s2_tree_depth4_calibrated_brier,0.2143,S2 Brier score (tree_depth4_calibrated)
+lapse,s2_tree_depth4_calibrated_roc_auc,0.7106,S2 ROC-AUC (tree_depth4_calibrated)
+lapse,s2_tree_depth4_calibrated_log_loss,0.6145,S2 log loss (tree_depth4_calibrated)
+lapse,s2_tree_depth4_calibrated_ece_10_bins,0.0774,S2 10-bin ECE (tree_depth4_calibrated)
+lapse,s2_two_bin_recency_90d_brier,0.2264,S2 Brier score (two_bin_recency_90d)
+lapse,s2_two_bin_recency_90d_roc_auc,0.6371,S2 ROC-AUC (two_bin_recency_90d)
+lapse,s2_two_bin_recency_90d_log_loss,0.6448,S2 log loss (two_bin_recency_90d)
+lapse,s2_two_bin_recency_90d_ece_10_bins,0.0206,S2 10-bin ECE (two_bin_recency_90d)
+nl,dev_overall_execution_accuracy_pct,100.0,Overall execution accuracy on dev
+nl,dev_template_match_rate_pct,100.0,Template match rate on dev
+nl,dev_out_of_scope_rejection_rate_pct,100.0,Out-of-scope rejection rate on dev
+nl,dev_hedge_threshold_accuracy_pct,100.0,Hedge-threshold accuracy on dev

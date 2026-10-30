@@ -1,0 +1,7 @@
+split,failure_type,n_questions,share_of_questions_pct
+dev,wrong_template,0,0.0
+dev,wrong_hedge_threshold,0,0.0
+dev,wrong_entity_or_filter,0,0.0
+dev,false_refusal,0,0.0
+dev,missed_refusal,0,0.0
+dev,result_set_mismatch,0,0.0

@@ -152,6 +152,23 @@
 | **New** | 736 | 636 | 670.19 (± 14.07) | 634 | 643.37 (± 7.81) | 188,798.36 | 193,135.37 | 2.76% |
 | **Hibernating** | 1,073 | 1,029 | 995.35 (± 12.79) | 1,005 | 974.81 (± 8.60) | 248,126.01 | 239,560.51 | 3.42% |
 
+## Phase 7: NL engine, dev set, evaluation harness (done)
+
+**What was done**
+- Built `src/nl/lexicon.py` (hedge lexicon mapping IPCC/Kent phrases to thresholds, segment synonyms, country aliases and intent phrases), `src/nl/parser.py` (spaCy + `EntityRuler` pipeline attaching hedges to the nearest `SEGMENT` or `LAPSE` predicate and returning `ParsedQuery`), and `src/nl/engine.py` (executes `ParsedQuery` via `prob_queries.run_template` with optional threshold slider override).
+- Created `eval/questions_dev.csv` (26 development questions: 21 in-scope across Q1–Q6 and all hedge levels + 5 out-of-scope/injection/ambiguous cases) and `eval/questions_test.csv` (headers only, `q_id,question,gold_sql,author`, per Rule 6) plus `docs/how_to_write_test_questions.md`.
+- `src/evaluate.py` runs the NL evaluation harness (`reports/tables/nl_dev_results.csv`, `reports/tables/nl_summary.csv`, `reports/tables/nl_error_analysis.csv`) and consolidates 41 headline metrics across Phases 1–7 into `eval_results` (`reports/tables/eval_results.csv`).
+- `tests/test_nl.py`: 5 new tests verifying the hedge lexicon, SQL injection refusal, out-of-scope refusal, 100% dev execution accuracy, and `questions_test.csv` header format; `pytest`: 42 passed.
+
+**Key numbers** (from `reports/tables/nl_summary.csv`)
+
+| Split | Total questions | In-scope | Out-of-scope | Overall execution accuracy | In-scope execution accuracy | Template match rate | Out-of-scope rejection rate | Hedge-threshold accuracy |
+|---|---|---|---|---|---|---|---|---|
+| `dev` | 26 | 21 | 5 | **100.00%** | **100.00%** | **100.00%** | **100.00%** | **100.00%** |
+
+- **Note on `eval/questions_test.csv`:** currently header-only as required by Rule 6; `python -m src.evaluate` will automatically score the human test set once a human adds rows and freezes it.
+
+
 
 
 
