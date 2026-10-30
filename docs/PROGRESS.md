@@ -168,6 +168,15 @@
 
 - **Note on `eval/questions_test.csv`:** currently header-only as required by Rule 6; `python -m src.evaluate` will automatically score the human test set once a human adds rows and freezes it.
 
+## Phase 8: Streamlit app and deployment prep (done)
+
+**What was done**
+- Built `app/streamlit_app.py` with four tabs (`Ask (NL -> SQL)`, `Segments & Tree Rules`, `Model Quality`, `About & Limitations`), example question chips, probability threshold override slider (`0.05`–`0.99`), SQL expander, results dataframe and Altair charts for Q1–Q6.
+- Connected to `app/app.duckdb` via `duckdb.connect("app/app.duckdb", read_only=True)` cached with `@st.cache_resource`.
+- Pinned `en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl` in `requirements.txt` to match `spacy==3.8.18`.
+- `tests/test_app.py`: 3 new tests verifying read-only enforcement, Altair chart construction across all 6 example questions, and the `requirements.txt` spaCy wheel pin; `pytest`: 45 passed.
+
+
 
 
 
