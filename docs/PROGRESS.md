@@ -53,3 +53,24 @@
 
 **Housekeeping after Phase 1**
 - Added the architecture diagram as `docs/architecture.png`.
+
+## Phase 2: Snapshots, customer features, outcomes (done)
+
+**What was done**
+- `src/features.py` copies `config.SNAPSHOTS` into a `snapshots` table in DuckDB and executes `sql/03_features.sql`, then exports `reports/tables/snapshot_summary.csv`.
+- `sql/03_features.sql` builds:
+  - `customers`: 5,852 unique customers (`customer_id` PK, `country`, `first_purchase`, `last_purchase`). For the 12 customers whose orders span two countries, `ARG_MAX(country, invoice_date)` selects the country on their most recent order.
+  - `customer_features`: 10,464 rows across S1, S2 and S3 (`customer_id`, `snapshot`, `recency_days`, `frequency`, `monetary`, `tenure_days`, `avg_basket`).
+  - `outcomes`: 6,503 rows across S1 and S2 (`customer_id`, `snapshot`, `purchased_next_90d`). S3 has no rows in `outcomes` because its outcome window is in the future.
+- `src/pipeline.py` now runs Phase 2 with `--phase 2` or `--all`.
+- `tests/test_features.py`: 5 new tests verifying customer PK uniqueness, `(customer_id, snapshot)` uniqueness, feature-window membership, zero feature leakage from dates `>= S`, and zero outcome leakage outside `[outcome_start, outcome_end]`.
+- `pytest`: 16 passed.
+
+**Key numbers** (from `reports/tables/snapshot_summary.csv`)
+
+| Snapshot | Date (S) | Feature window | Outcome window | Customers | Mean / median recency (d) | Mean / median frequency | Mean / median monetary (£) | Mean / median tenure (d) | Mean / median basket (£) | Purchased next 90d | Lapsed next 90d | Base lapse rate |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| S1 | 2010-09-10 | 2009-12-10 – 2010-09-09 | 2010-09-10 – 2010-12-09 | 3,256 | 87.89 / 72.0 | 3.53 / 2.0 | 1,598.59 / 585.77 | 181.07 / 192.0 | 366.80 / 287.52 | 1,908 (58.60%) | 1,348 | 41.40% |
+| S2 | 2011-09-10 | 2010-12-10 – 2011-09-09 | 2011-09-10 – 2011-12-09 | 3,247 | 88.36 / 69.0 | 3.40 / 2.0 | 1,555.65 / 552.00 | 405.23 / 460.0 | 401.43 / 283.12 | 1,871 (57.62%) | 1,376 | 42.38% |
+| S3 | 2011-12-10 | 2011-03-10 – 2011-12-09 | — | 3,961 | 71.38 / 43.0 | 3.70 / 2.0 | 1,768.34 / 631.89 | 436.50 / 478.0 | 408.99 / 296.64 | — | — | — |
+

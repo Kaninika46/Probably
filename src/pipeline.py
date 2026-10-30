@@ -8,7 +8,7 @@ New phases are added to PHASES as they are built.
 
 import argparse
 
-from src import clean, eda, ingest
+from src import clean, eda, features, ingest
 
 
 def run_phase_1() -> None:
@@ -18,8 +18,14 @@ def run_phase_1() -> None:
     eda.run()
 
 
+def run_phase_2() -> None:
+    """Build customers, customer_features (S1, S2, S3) and outcomes (S1, S2)."""
+    features.run()
+
+
 PHASES = {
     1: run_phase_1,
+    2: run_phase_2,
 }
 
 

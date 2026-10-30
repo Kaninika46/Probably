@@ -1,0 +1,4 @@
+snapshot,snapshot_date,feature_start,feature_end,outcome_start,outcome_end,n_customers,mean_recency_days,median_recency_days,mean_frequency,median_frequency,mean_monetary,median_monetary,mean_tenure_days,median_tenure_days,mean_avg_basket,median_avg_basket,n_purchased_next_90d,n_lapsed_next_90d,purchase_rate_pct,lapse_rate_pct
+S1,2010-09-10,2009-12-10,2010-09-09,2010-09-10,2010-12-09,3256,87.89,72.0,3.53,2.0,1598.59,585.77,181.07,192.0,366.8,287.52,1908.0,1348.0,58.6,41.4
+S2,2011-09-10,2010-12-10,2011-09-09,2011-09-10,2011-12-09,3247,88.36,69.0,3.4,2.0,1555.65,552.0,405.23,460.0,401.43,283.12,1871.0,1376.0,57.62,42.38
+S3,2011-12-10,2011-03-10,2011-12-09,,,3961,71.38,43.0,3.7,2.0,1768.34,631.89,436.5,478.0,408.99,296.64,,,,
