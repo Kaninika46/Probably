@@ -18,6 +18,7 @@ from src import (
     lapse,
     membership,
     prob_queries,
+    report_tables,
     rules,
     segment,
     worlds,
@@ -64,6 +65,11 @@ def run_phase_7() -> None:
     evaluate.run()
 
 
+def run_phase_9() -> None:
+    """Generate Markdown results tables from reports/tables/ and sync README.md."""
+    report_tables.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
@@ -72,6 +78,7 @@ PHASES = {
     5: run_phase_5,
     6: run_phase_6,
     7: run_phase_7,
+    9: run_phase_9,
 }
 
 

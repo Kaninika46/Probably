@@ -176,8 +176,12 @@
 - Pinned `en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl` in `requirements.txt` to match `spacy==3.8.18`.
 - `tests/test_app.py`: 3 new tests verifying read-only enforcement, Altair chart construction across all 6 example questions, and the `requirements.txt` spaCy wheel pin; `pytest`: 45 passed.
 
+## Phase 9: README, automated report tables, references, and presentation notebook (done)
 
-
-
-
+**What was done**
+- Built `src/report_tables.py` and wired `run_phase_9` into `src/pipeline.py`. It reads `cleaning_funnel.csv`, `snapshot_summary.csv`, `segment_profiles_spherical_k5.csv`, `tree_fidelity.csv`, `gate.csv`, `kmeans_vs_expected_sizes.csv`, `lapse_s2_eval.csv`, and `nl_summary.csv`, writes `reports/tables/readme_results.md`, and synchronises the auto-generated results block in `README.md`.
+- Updated `README.md` with the ABAI2009L topic alignment table, `docs/architecture.png`, a Mermaid system and query-flow diagram, the auto-generated empirical tables, figure links, and setup/execution instructions.
+- Created `docs/references.md` with verified citations for all 9 required references in `CLAUDE.md` Section 11 (UCI Online Retail II DOI `10.24432/C5CG6D` by Daqing Chen; Fayyad et al. 1996; Pedregosa et al. 2011 & scikit-learn GMM BIC doc; Dalvi & Suciu 2007, Suciu et al. 2011, Van den Broeck & Suciu 2017 & MayBMS manual; IPCC AR5 Uncertainty Guidance Note Mastrandrea et al. 2010 & Sherman Kent 1964; Spider Yu et al. 2018 & BIRD Li et al. 2023; Dasgupta et al. ICML 2020; Hennig 2007; Fader, Hardie & Lee 2005 BG/NBD).
+- Created `notebooks/presentation_walkthrough.ipynb` calling `src/` modules and displaying key tables and a live NL query for the viva presentation.
+- Wrote `docs/explainers/phase-9.md` and `tests/test_phase9.py` (5 new tests verifying `report_tables.py` vs `README.md`, `docs/references.md` citations, zero placeholders across all deliverables, `eval/questions_test.csv` header-only rule, and notebook validity); `pytest`: 50 passed.
 
