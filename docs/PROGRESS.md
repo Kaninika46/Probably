@@ -14,7 +14,6 @@
 - Added `src/eda.py` for the Phase 1 exploratory figures (CLAUDE.md section 5).
 
 **Open items**
-- `docs/architecture.png` is missing. The architecture diagram was not found on this machine.
 - The spaCy model `en_core_web_sm` is not installed yet. It will be pinned by wheel URL in Phase 7 (CLAUDE.md section 7.11).
 
 ## Phase 1: Ingest, cleaning, EDA (done)
@@ -52,5 +51,5 @@
 - `revenue_share_pct` in both non-product tables uses the revenue that reached rule 5 as its base, the same base as the funnel's rule 5 share.
 - `revenue_affected` = revenue before the step minus revenue after. It is negative for steps 3 and 4 because the rows removed there have negative quantities or prices.
 
-**Open items**
-- `docs/architecture.png` is still missing.
+**Housekeeping after Phase 1**
+- Added the architecture diagram as `docs/architecture.png`.
