@@ -133,5 +133,25 @@
 | **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.7106 | 0.6145 | 0.0774 |
 | **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.6371 | 0.6448 | **0.0206** |
 
+## Phase 6: Probabilistic SQL templates Q1–Q6, possible-worlds check, `app.duckdb` (done)
+
+**What was done**
+- Created `sql/templates/q1_confident.sql` … `q6_segment_and_lapse.sql` using DuckDB named parameters (`$method`, `$seg`, `$tau`, `$k`, `$country`, etc.).
+- `src/prob_queries.py` validates parameters against allow-lists (`ALLOWED_METHODS`, `ALLOWED_SEGMENTS`, valid DB countries, probability bounds) before binding them, and exports `reports/tables/kmeans_vs_expected_sizes.csv`, `q3_expected_sizes_bootstrap.csv`, `q3_expected_sizes_gmm.csv`, `q4_expected_revenue_bootstrap.csv` and `q4_expected_revenue_gmm.csv`.
+- `src/worlds.py` (stretch item) draws $M = 10,000$ possible worlds (`random_state=42`) to verify Q3 expected sizes and variances numerically and estimate $P(\text{size} \ge N)$ (`reports/tables/possible_worlds_q3_check.csv`).
+- `src/export_app_db.py` builds `app/app.duckdb` (`1,847,296` bytes) containing only the 5 S3 customer-level tables (`customers`: 3,961 rows, `customer_features`: 3,961 rows, `segments`: 5 rows, `segment_membership`: 39,610 rows, `lapse_risk`: 3,961 rows).
+- `tests/test_templates.py`: 9 new tests; `pytest`: 37 passed.
+
+**Key numbers** (from `reports/tables/kmeans_vs_expected_sizes.csv` and `q4_expected_revenue_bootstrap.csv`)
+
+| Segment | K-Means hard count | GMM hard count | GMM expected size $\sum p$ (± std) | Bootstrap hard count | Bootstrap expected size $\sum p$ (± std) | Bootstrap hard revenue (£) | Bootstrap expected revenue (£) | Share of S3 revenue |
+|---|---|---|---|---|---|---|---|---|
+| **Champions** | 364 | 258 | 278.63 (± 7.43) | 278 | 290.55 (± 5.63) | 3,338,480.84 | 3,419,094.68 | 48.81% |
+| **Loyal** | 887 | 1,105 | 1,073.79 (± 14.71) | 1,116 | 1,110.32 (± 10.22) | 2,339,218.02 | 2259,067.53 | 32.25% |
+| **At-Risk** | 901 | 933 | 943.04 (± 16.99) | 928 | 941.95 (± 10.91) | 889,769.42 | 893,534.57 | 12.76% |
+| **New** | 736 | 636 | 670.19 (± 14.07) | 634 | 643.37 (± 7.81) | 188,798.36 | 193,135.37 | 2.76% |
+| **Hibernating** | 1,073 | 1,029 | 995.35 (± 12.79) | 1,005 | 974.81 (± 8.60) | 248,126.01 | 239,560.51 | 3.42% |
+
+
 
 

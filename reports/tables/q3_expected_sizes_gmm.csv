@@ -1,0 +1,6 @@
+segment,hard_count,expected_size,expected_minus_hard,variance_independent,std_dev_independent
+Loyal,1105,1073.79,-31.21,216.27,14.71
+Hibernating,1029,995.35,-33.65,163.64,12.79
+At-Risk,933,943.04,10.04,288.77,16.99
+New,636,670.19,34.19,197.89,14.07
+Champions,258,278.63,20.63,55.2,7.43

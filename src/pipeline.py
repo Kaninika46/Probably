@@ -8,7 +8,19 @@ New phases are added to PHASES as they are built.
 
 import argparse
 
-from src import clean, eda, features, ingest, lapse, membership, rules, segment
+from src import (
+    clean,
+    eda,
+    export_app_db,
+    features,
+    ingest,
+    lapse,
+    membership,
+    prob_queries,
+    rules,
+    segment,
+    worlds,
+)
 
 
 def run_phase_1() -> None:
@@ -39,12 +51,20 @@ def run_phase_5() -> None:
     lapse.run()
 
 
+def run_phase_6() -> None:
+    """Run probabilistic query templates Q1-Q6, possible-worlds check and export app.duckdb."""
+    prob_queries.run()
+    worlds.run()
+    export_app_db.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
     3: run_phase_3,
     4: run_phase_4,
     5: run_phase_5,
+    6: run_phase_6,
 }
 
 

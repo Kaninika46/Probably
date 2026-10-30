@@ -1,0 +1,6 @@
+segment,kmeans_hard_count,gmm_hard_count,gmm_expected_size,gmm_std_dev,bootstrap_hard_count,bootstrap_expected_size,bootstrap_std_dev
+Champions,364,258,278.63,7.43,278,290.55,5.63
+Loyal,887,1105,1073.79,14.71,1116,1110.32,10.22
+At-Risk,901,933,943.04,16.99,928,941.95,10.91
+New,736,636,670.19,14.07,634,643.37,7.81
+Hibernating,1073,1029,995.35,12.79,1005,974.81,8.6
