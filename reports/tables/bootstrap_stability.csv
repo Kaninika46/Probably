@@ -1,0 +1,2 @@
+covariance_type,k,bootstrap_b,ari_median,ari_iqr,ari_q25,ari_q75,ari_mean,ari_min,ari_max
+spherical,5,100,0.8674,0.0977,0.8151,0.9128,0.8414,0.4532,0.9613

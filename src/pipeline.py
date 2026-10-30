@@ -8,7 +8,7 @@ New phases are added to PHASES as they are built.
 
 import argparse
 
-from src import clean, eda, features, ingest, segment
+from src import clean, eda, features, ingest, membership, rules, segment
 
 
 def run_phase_1() -> None:
@@ -28,10 +28,17 @@ def run_phase_3() -> None:
     segment.run()
 
 
+def run_phase_4() -> None:
+    """Build BID segment_membership (gmm + bootstrap), gate report and tree rules."""
+    membership.run()
+    rules.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
     3: run_phase_3,
+    4: run_phase_4,
 }
 
 

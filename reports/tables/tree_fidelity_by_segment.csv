@@ -1,0 +1,6 @@
+segment,n_test_customers,n_matched,test_fidelity_pct
+Champions,77,67,87.01
+Loyal,332,305,91.87
+At-Risk,280,223,79.64
+New,191,156,81.68
+Hibernating,309,281,90.94

@@ -1,0 +1,11 @@
+method,segment,n_assigned_most_probable,expected_size_sum_p,ave_pp
+gmm,Champions,258,278.63,0.8934
+gmm,Loyal,1105,1073.79,0.849
+gmm,At-Risk,933,943.04,0.788
+gmm,New,636,670.19,0.8086
+gmm,Hibernating,1029,995.35,0.8723
+bootstrap,Champions,278,290.55,0.949
+bootstrap,Loyal,1116,1110.32,0.9339
+bootstrap,At-Risk,928,941.95,0.9191
+bootstrap,New,634,643.37,0.9409
+bootstrap,Hibernating,1005,974.81,0.9352

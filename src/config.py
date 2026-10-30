@@ -89,6 +89,17 @@ GMM_COVARIANCE_TYPES = ["spherical", "tied", "diag", "full"]
 GMM_N_INIT = 10
 CAP_PERCENTILE = 99  # frequency and monetary are capped here before log1p
 
+# Confirmed at the Phase 3 checkpoint
+CHOSEN_K = 5
+CHOSEN_GMM_COV = "spherical"
+SEGMENT_DESCRIPTIONS = {
+    "Champions": "Very recent buyers with the highest order frequency and wholesale-level spend.",
+    "Loyal": "Regular repeat customers who bought recently with solid multi-order spend.",
+    "At-Risk": "Previously repeat customers with good spend who have not purchased for ~2-3 months.",
+    "New": "Recent buyers with only 1-2 modest orders so far.",
+    "Hibernating": "Low-frequency, low-spend buyers who have been inactive for ~5 months.",
+}
+
 BOOTSTRAP_B = 100
 BOUNDARY_P = 0.6  # a customer whose max p is below this is a "boundary" case
 

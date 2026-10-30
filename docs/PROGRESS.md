@@ -74,7 +74,7 @@
 | S2 | 2011-09-10 | 2010-12-10 – 2011-09-09 | 2011-09-10 – 2011-12-09 | 3,247 | 88.36 / 69.0 | 3.40 / 2.0 | 1,555.65 / 552.00 | 405.23 / 460.0 | 401.43 / 283.12 | 1,871 (57.62%) | 1,376 | 42.38% |
 | S3 | 2011-12-10 | 2011-03-10 – 2011-12-09 | — | 3,961 | 71.38 / 43.0 | 3.70 / 2.0 | 1,768.34 / 631.89 | 436.50 / 478.0 | 408.99 / 296.64 | — | — | — |
 
-## Phase 3: Segmentation grids and candidate profiles (at checkpoint)
+## Phase 3: Segmentation grids and candidate profiles (done)
 
 **What was done**
 - `src/segment.py` preprocesses S3 RFM (`3,961` customers): caps `frequency` at the 99th percentile (`26.00` invoices, 35 customers capped) and `monetary` at the 99th percentile (`£15,942.81`, 40 customers capped), applies `log1p`, and standardizes with `StandardScaler` (`reports/tables/s3_preprocessing.csv`).
@@ -84,9 +84,9 @@
 - Exports original-unit centroid profiles and $B = 100$ bootstrap stability metrics for the primary proposal (`spherical, K=5`: `reports/tables/segment_profiles_spherical_k5.csv`, `reports/figures/segment_profiles_s3.png`) and the 4-cluster alternatives (`segment_profiles_spherical_k4.csv`, `segment_profiles_tied_k4.csv`).
 - `tests/test_segment.py`: 4 new tests; `pytest`: 20 passed.
 
-**Proposed choice for Phase 3 human checkpoint: `covariance_type = 'spherical'`, `K = 5`**
+**Confirmed at Phase 3 human checkpoint: `covariance_type = 'spherical'`, `K = 5`**
 
-| Proposed segment | Cluster ID | Customers | Share (%) | Mean / median recency (d) | Mean / median frequency | Mean / median monetary (£) | Mean tenure (d) | Mean basket (£) | AvePP | Mean Jaccard ($B=100$) |
+| Segment | Cluster ID | Customers | Share (%) | Mean / median recency (d) | Mean / median frequency | Mean / median monetary (£) | Mean tenure (d) | Mean basket (£) | AvePP | Mean Jaccard ($B=100$) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | **Champions** | 4 | 258 | 6.51% | 8.60 / 5.0 | 18.66 / 14.0 | 12,635.95 / 5,455.26 | 620.17 | 620.79 | 0.8934 | 0.8669 |
 | **Loyal** | 0 | 1,105 | 27.90% | 21.72 / 17.0 | 5.04 / 5.0 | 2,154.78 / 1,579.14 | 478.98 | 530.84 | 0.8490 | 0.8775 |
@@ -94,7 +94,25 @@
 | **New** | 2 | 636 | 16.06% | 23.19 / 22.0 | 1.42 / 1.0 | 301.97 / 284.55 | 320.97 | 234.11 | 0.8086 | 0.8758 |
 | **Hibernating** | 3 | 1,029 | 25.98% | 156.38 / 159.0 | 1.14 / 1.0 | 251.34 / 229.23 | 406.09 | 234.67 | 0.8723 | 0.9009 |
 
-- Bootstrap ARI median = `0.8674` (IQR `0.0977`); all 5 segments have mean Jaccard $\ge 0.8449 > 0.75$ (`stable`); boundary share (`max_p < 0.6`) = `12.50%`.
-- **Open checkpoint decision:** awaiting human confirmation of `K = 5`, `covariance_type = 'spherical'`, and segment names (`Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating`)—or selection of the `K = 4` alternative—before running Phase 4.
+- The user confirmed `K = 5`, `covariance_type = 'spherical'`, and segment names `Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating`.
+
+## Phase 4: Membership probabilities, gate report, tree rules (at checkpoint)
+
+**What was done**
+- `src/membership.py` builds the `segments` table (5 rows) and the BID `segment_membership` table (`39,610` rows = `3,961` S3 customers × 5 segments × 2 methods `'gmm'` and `'bootstrap'`).
+- Exports bootstrap stability (`reports/tables/bootstrap_stability.csv`, `reports/tables/segment_stability.csv`) and the go/no-go gate report (`reports/tables/gate.csv`, `reports/tables/gate_ave_pp.csv`, `reports/figures/gate_max_p_hist.png`).
+- `src/rules.py` fits a depth-4 `DecisionTreeClassifier` in original units on a 70/30 stratified split (`2,772` train / `1,189` test), writes readable rules to `segments.tree_rule` and `reports/tables/tree_rules.md`, and saves `reports/tables/tree_fidelity.csv` and `reports/tables/tree_fidelity_by_segment.csv`.
+- `tests/test_membership.py`: 5 new tests verifying BID invariants ($\sum p = 1$ per block, $p \in [0, 1]$, expected sizes sum to 3,961) and rule/gate exports; `pytest`: 25 passed.
+
+**Key numbers** (from `reports/tables/gate.csv` and `reports/tables/tree_fidelity.csv`)
+
+| Method | Customers | Boundary ($\max p < 0.6$) | Boundary share (%) | Mean $\max p$ | Median $\max p$ | Mean norm. entropy | AvePP Champions | AvePP Loyal | AvePP At-Risk | AvePP New | AvePP Hibernating |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `gmm` | 3,961 | 495 | **12.50%** | 0.8371 | 0.8996 | 0.2526 | 0.8934 | 0.8490 | 0.7880 | 0.8086 | 0.8723 |
+| `bootstrap` | 3,961 | 152 | **3.84%** | 0.9329 | 0.9900 | 0.1041 | 0.9490 | 0.9339 | 0.9191 | 0.9409 | 0.9352 |
+
+- **Surrogate decision tree (`max_depth=4`):** 16 leaves, training fidelity **89.72%**, held-out 30% test fidelity **86.80%** (`Loyal` 91.87%, `Hibernating` 90.94%, `Champions` 87.01%, `New` 81.68%, `At-Risk` 79.64%).
+- **Open checkpoint decision (Phase 4 Go/No-Go Gate):**
+  - Under `gmm`, the boundary share is **12.50%** (495 customers), making **segment confidence** a meaningful headline; under `bootstrap`, the boundary share is **3.84%** (152 customers), where **lapse risk** is the stronger headline uncertainty. Awaiting human decision on the headline framing before proceeding.
 
 

@@ -1,0 +1,2 @@
+max_depth,actual_depth,n_leaves,n_train,n_test,train_fidelity_pct,test_fidelity_pct
+4,4,16,2772,1189,89.72,86.8
