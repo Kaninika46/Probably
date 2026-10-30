@@ -61,12 +61,36 @@ def insert_log_row(con, step_no, rule, rows_before, rows_after, revenue_affected
     )
 
 
-def save_funnel_table(con) -> None:
-    """Write the funnel to CSV, adding rows removed and revenue share per step.
+def raw_total_revenue(con) -> float:
+    """Total quantity * price over all raw rows: the fixed base for raw shares.
 
-    revenue_share_pct is the removed revenue as a percentage of the revenue
-    that existed before that step. CLAUDE.md asks for this share explicitly for
-    duplicates; we show it for every step so the table is consistent.
+    This is net revenue: cancellations and other negative lines are included
+    with their negative values, exactly as they appear in the raw data.
+    """
+    rows, revenue = count_rows_and_revenue(con, "raw_transactions")
+    return revenue
+
+
+def save_raw_totals_table(con) -> None:
+    """Save the raw row count and raw total revenue so the report can cite them."""
+    totals = con.execute("""
+        SELECT COUNT(*) AS n_rows, ROUND(SUM(quantity * price), 2) AS total_revenue
+        FROM raw_transactions
+    """).df()
+    config.TABLES_DIR.mkdir(parents=True, exist_ok=True)
+    totals.to_csv(config.TABLES_DIR / "raw_totals.csv", index=False)
+
+
+def save_funnel_table(con) -> None:
+    """Write the funnel to CSV, adding rows removed and two revenue shares.
+
+    The removed revenue of each step is shown as a percentage of two bases:
+
+    * share_of_revenue_before_step_pct: the revenue still present just before
+      that step. The base changes from step to step, so this answers "how
+      much of what was left did this rule remove?"
+    * share_of_raw_revenue_pct: the total revenue of all raw rows, one fixed
+      base for every step, so the steps can be compared with each other.
     """
     funnel = con.execute("""
         SELECT
@@ -89,7 +113,8 @@ def save_funnel_table(con) -> None:
     rows, revenue = count_rows_and_revenue(con, "clean_sales")
     revenue_before.append(revenue)
 
-    funnel["revenue_share_pct"] = (100 * funnel["revenue_affected"] / revenue_before).round(2)
+    funnel["share_of_revenue_before_step_pct"] = (100 * funnel["revenue_affected"] / revenue_before).round(2)
+    funnel["share_of_raw_revenue_pct"] = (100 * funnel["revenue_affected"] / raw_total_revenue(con)).round(2)
 
     config.TABLES_DIR.mkdir(parents=True, exist_ok=True)
     funnel.to_csv(config.TABLES_DIR / "cleaning_funnel.csv", index=False)
@@ -100,11 +125,13 @@ def save_non_product_codes_table(con) -> None:
     """List each excluded stock code with its description, rows, revenue and share.
 
     The counts are taken from the rows that reached rule 5, so they add up to
-    the rule 5 line of the funnel. revenue_share_pct is the code's revenue as
-    a percentage of all revenue that reached rule 5 (the "rows before" of that
-    step), the same base the funnel uses for its rule 5 share.
+    the rule 5 line of the funnel. Each code's revenue is shown as a
+    percentage of two bases, matching the funnel's two share columns:
+
+    * share_of_revenue_before_step_pct: all revenue that reached rule 5;
+    * share_of_raw_revenue_pct: the total revenue of all raw rows.
     """
-    rows, total_revenue = count_rows_and_revenue(con, "cleaning_step4_positive")
+    rows, revenue_before_step = count_rows_and_revenue(con, "cleaning_step4_positive")
     codes = con.execute("""
         SELECT
             n.stock_code,
@@ -112,12 +139,15 @@ def save_non_product_codes_table(con) -> None:
             MODE(s.description) AS description,
             COUNT(s.stock_code) AS n_rows,
             ROUND(COALESCE(SUM(s.quantity * s.price), 0), 2) AS revenue,
-            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $total, 4) AS revenue_share_pct
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $before_step, 4)
+                AS share_of_revenue_before_step_pct,
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $raw_total, 4)
+                AS share_of_raw_revenue_pct
         FROM non_product_codes AS n
         LEFT JOIN cleaning_step4_positive AS s ON s.stock_code = n.stock_code
         GROUP BY n.stock_code, n.reason
-        ORDER BY n_rows DESC
-    """, {"total": total_revenue}).df()
+        ORDER BY n_rows DESC, n.stock_code  -- stock_code breaks ties, so every run gives the same order
+    """, {"before_step": revenue_before_step, "raw_total": raw_total_revenue(con)}).df()
     codes.to_csv(config.TABLES_DIR / "non_product_codes.csv", index=False)
 
 
@@ -128,19 +158,22 @@ def save_non_product_reasons_table(con) -> None:
     seven gift-voucher codes together, come from the data and not from hand
     arithmetic.
     """
-    rows, total_revenue = count_rows_and_revenue(con, "cleaning_step4_positive")
+    rows, revenue_before_step = count_rows_and_revenue(con, "cleaning_step4_positive")
     reasons = con.execute("""
         SELECT
             n.reason,
             COUNT(DISTINCT n.stock_code) AS n_codes,
             COUNT(s.stock_code) AS n_rows,
             ROUND(COALESCE(SUM(s.quantity * s.price), 0), 2) AS revenue,
-            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $total, 4) AS revenue_share_pct
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $before_step, 4)
+                AS share_of_revenue_before_step_pct,
+            ROUND(100 * COALESCE(SUM(s.quantity * s.price), 0) / $raw_total, 4)
+                AS share_of_raw_revenue_pct
         FROM non_product_codes AS n
         LEFT JOIN cleaning_step4_positive AS s ON s.stock_code = n.stock_code
         GROUP BY n.reason
         ORDER BY revenue DESC
-    """, {"total": total_revenue}).df()
+    """, {"before_step": revenue_before_step, "raw_total": raw_total_revenue(con)}).df()
     reasons.to_csv(config.TABLES_DIR / "non_product_reasons.csv", index=False)
 
 
@@ -171,6 +204,7 @@ def run() -> None:
     con = db.connect_pipeline()
     db.run_sql_file(con, config.SQL_DIR / "02_clean_views.sql")
     fill_data_quality_log(con)
+    save_raw_totals_table(con)
     save_funnel_table(con)
     save_non_product_codes_table(con)
     save_non_product_reasons_table(con)

@@ -6,16 +6,23 @@
 
 **2. Clean in six steps, and measure every step.** Each rule is one view that reads from the previous one. `src/clean.py` counts the rows and revenue of every view and writes the difference to `data_quality_log`. That table is our *cleaning funnel*: it shows exactly what each rule removed, measured from the data.
 
-| Step | Rule | Rows before | Rows after | Revenue affected (£) |
-|---|---|---|---|---|
-| 1 | Overlap duplicates between sheets | 1,067,371 | 1,044,848 | 377,488.45 |
-| 2 | Remaining exact duplicates | 1,044,848 | 1,033,036 | 54,228.42 |
-| 3 | Cancellations moved to returns | 1,033,036 | 1,013,932 | -1,462,050.61 |
-| 4 | Quantity or price not positive | 1,013,932 | 1,007,913 | -158,676.14 |
-| 5 | Non-product stock codes | 1,007,913 | 1,003,357 | 832,398.81 |
-| 6 | Missing customer_id (excluded from customer analysis) | 1,003,357 | 776,596 | 2,575,278.90 |
+Revenue here means `quantity × price` summed over rows. The raw data, all 1,067,371 rows, has a total of **£19,287,250.57** (`reports/tables/raw_totals.csv`). This is *net* revenue: cancellations and other negative lines are counted with their negative values, exactly as they appear in the raw data.
 
-Source: `reports/tables/cleaning_funnel.csv`; chart: `reports/figures/cleaning_funnel.png`.
+The removed revenue of each step is shown as a percentage of two different bases:
+
+- **Share of revenue before step:** the removed revenue divided by the revenue still present just before that step. The base shrinks or grows as rows are removed, so this answers "how much of what was left did this rule remove?" It can't be compared directly across steps.
+- **Share of raw revenue:** the removed revenue divided by the fixed raw total of £19,287,250.57. Every step uses the same base, so these percentages can be compared with each other.
+
+| Step | Rule | Rows before | Rows after | Revenue affected (£) | Share of revenue before step | Share of raw revenue |
+|---|---|---|---|---|---|---|
+| 1 | Overlap duplicates between sheets | 1,067,371 | 1,044,848 | 377,488.45 | 1.96% | 1.96% |
+| 2 | Remaining exact duplicates | 1,044,848 | 1,033,036 | 54,228.42 | 0.29% | 0.28% |
+| 3 | Cancellations moved to returns | 1,033,036 | 1,013,932 | -1,462,050.61 | -7.75% | -7.58% |
+| 4 | Quantity or price not positive | 1,013,932 | 1,007,913 | -158,676.14 | -0.78% | -0.82% |
+| 5 | Non-product stock codes | 1,007,913 | 1,003,357 | 832,398.81 | 4.07% | 4.32% |
+| 6 | Missing customer_id (excluded from customer analysis) | 1,003,357 | 776,596 | 2,575,278.90 | 13.11% | 13.35% |
+
+Source: `reports/tables/cleaning_funnel.csv`; chart: `reports/figures/cleaning_funnel.png`. A negative share means the step removed negative revenue (mostly cancellations), which *raises* the total that remains.
 
 - **Step 1:** the first sheet ends on 2010-12-09 and the second starts on 2010-12-01, so the first nine days of December 2010 appear twice. We keep the first sheet's copy.
 - **Step 2:** some lines appear twice even within one sheet. We keep one copy of each.
@@ -25,17 +32,17 @@ Source: `reports/tables/cleaning_funnel.csv`; chart: `reports/figures/cleaning_f
   - **Samples (`S`)** are adjustments, not product sales.
   - **Gift vouchers (7 codes, `gift_0001_10` … `gift_0001_80`)** are a payment method, not goods. A voucher is bought once and later spent on real products. Counting both the voucher purchase and the products it pays for would double-count the same money.
 
-  The 21 excluded codes, with their rows, revenue and share of revenue, are in `reports/tables/non_product_codes.csv`, and the totals per reason are in `reports/tables/non_product_reasons.csv`.
+  The 21 excluded codes, with their rows, revenue and both shares, are in `reports/tables/non_product_codes.csv`, and the totals per reason are in `reports/tables/non_product_reasons.csv`. Here "before step" means all revenue that reached rule 5, and "raw" means the fixed raw total of £19,287,250.57.
 
-  | Reason | Codes | Rows | Revenue (£) | Share of revenue reaching rule 5 |
-  |---|---|---|---|---|
-  | postage | 3 | 3,533 | 448,962.53 | 2.1926% |
-  | manual adjustment | 5 | 891 | 359,932.33 | 1.7578% |
-  | fee | 2 | 37 | 20,987.04 | 0.1025% |
-  | gift voucher | 7 | 77 | 1,756.17 | 0.0086% |
-  | discount | 1 | 5 | 397.89 | 0.0019% |
-  | test | 2 | 10 | 226.00 | 0.0011% |
-  | samples | 1 | 3 | 136.85 | 0.0007% |
+  | Reason | Codes | Rows | Revenue (£) | Share of revenue before step | Share of raw revenue |
+  |---|---|---|---|---|---|
+  | postage | 3 | 3,533 | 448,962.53 | 2.1926% | 2.3278% |
+  | manual adjustment | 5 | 891 | 359,932.33 | 1.7578% | 1.8662% |
+  | fee | 2 | 37 | 20,987.04 | 0.1025% | 0.1088% |
+  | gift voucher | 7 | 77 | 1,756.17 | 0.0086% | 0.0091% |
+  | discount | 1 | 5 | 397.89 | 0.0019% | 0.0021% |
+  | test | 2 | 10 | 226.00 | 0.0011% | 0.0012% |
+  | samples | 1 | 3 | 136.85 | 0.0007% | 0.0007% |
 - **Step 6:** some sales have no customer ID. We keep them in `clean_sales` so total revenue is complete, but every customer-level table will leave them out (`has_customer` = false).
 
 **3. Look at the data (EDA).** `src/eda.py` draws three figures from `clean_sales`:
@@ -56,8 +63,8 @@ The raw table is never edited, so we can always check our work against the origi
 **3. Why are the revenue numbers for steps 3 and 4 negative?**
 `revenue_affected` is the revenue before a step minus the revenue after it, which is the total `quantity × price` of the rows removed. Cancelled lines have negative quantities, so removing them takes away -£1,462,050.61. In step 4 some of the removed lines have negative quantities or prices, and they outweigh the rest, so the total is also negative (-£158,676.14).
 
-**4. Rows without a customer are 13.11% of clean revenue. Why not throw them away?**
+**4. Rows without a customer are 13.11% of clean revenue (13.35% of raw revenue). Why not throw them away?**
 They are real sales, so dropping them would understate the business's revenue. But we can't build customer features for a row with no customer. So we keep them in `clean_sales` for totals (£19,643,861.64) and leave them out of every customer table. The revenue that has a customer is £17,068,582.74, and step 6 of the funnel shows the difference: 226,761 rows and £2,575,278.90.
 
 **5. How did you decide which stock codes are not products?**
-We listed every code that doesn't match the normal pattern (5 digits, optionally followed by letters) among rows that survived steps 1–4, then read each one's description. Postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code and test products were clearly not merchandise. Samples (`S`) are adjustments, not product sales. Gift vouchers are a payment method: counting both the voucher purchase and its later redemption against real products would double-count revenue. The 7 voucher codes are only 0.0086% of the revenue that reached rule 5 (`reports/tables/non_product_reasons.csv`), so the decision is about correctness, not about the size of the effect. Codes with real product descriptions, like the `DCGS…` pet products, were kept. Together, the 21 excluded codes cover 4,556 rows and £832,398.81, and each code's numbers are in `reports/tables/non_product_codes.csv`.
+We listed every code that doesn't match the normal pattern (5 digits, optionally followed by letters) among rows that survived steps 1–4, then read each one's description. Postage, carriage, manual adjustments, bad debt, bank and Amazon fees, a discount code and test products were clearly not merchandise. Samples (`S`) are adjustments, not product sales. Gift vouchers are a payment method: counting both the voucher purchase and its later redemption against real products would double-count revenue. The 7 voucher codes are only 0.0091% of raw revenue, or 0.0086% of the revenue that reached rule 5 (`reports/tables/non_product_reasons.csv`), so the decision is about correctness, not about the size of the effect. Codes with real product descriptions, like the `DCGS…` pet products, were kept. Together, the 21 excluded codes cover 4,556 rows and £832,398.81, and each code's numbers are in `reports/tables/non_product_codes.csv`.
