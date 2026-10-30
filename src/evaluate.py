@@ -283,6 +283,7 @@ def build_master_eval_results(con, nl_summary_df: pd.DataFrame) -> pd.DataFrame:
     for lrow in s2_df.itertuples():
         rows.extend([
             ("lapse", f"s2_{lrow.model}_brier", float(lrow.brier_score), f"S2 Brier score ({lrow.model})"),
+            ("lapse", f"s2_{lrow.model}_brier_skill_score", float(lrow.brier_skill_score), f"S2 Brier skill score vs base rate ({lrow.model})"),
             ("lapse", f"s2_{lrow.model}_roc_auc", float(lrow.roc_auc), f"S2 ROC-AUC ({lrow.model})"),
             ("lapse", f"s2_{lrow.model}_log_loss", float(lrow.log_loss), f"S2 log loss ({lrow.model})"),
             ("lapse", f"s2_{lrow.model}_ece_10_bins", float(lrow.ece_10_bins), f"S2 10-bin ECE ({lrow.model})"),

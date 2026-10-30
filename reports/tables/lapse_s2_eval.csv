@@ -1,4 +1,4 @@
-split,model,n_customers,base_lapse_rate,mean_predicted_p,brier_score,roc_auc,log_loss,ece_10_bins
-S2_heldout_test,logistic_calibrated,3247,0.4238,0.4008,0.2034,0.739,0.587,0.0343
-S2_heldout_test,tree_depth4_calibrated,3247,0.4238,0.3801,0.2143,0.7106,0.6145,0.0774
-S2_heldout_test,two_bin_recency_90d,3247,0.4238,0.4125,0.2264,0.6371,0.6448,0.0206
+split,model,n_customers,base_lapse_rate,mean_predicted_p,brier_score,brier_skill_score,roc_auc,log_loss,ece_10_bins
+S2_heldout_test,logistic_calibrated,3247,0.4238,0.4008,0.2034,0.1672,0.739,0.587,0.0343
+S2_heldout_test,tree_depth4_calibrated,3247,0.4238,0.3801,0.2143,0.1225,0.7106,0.6145,0.0774
+S2_heldout_test,two_bin_recency_90d,3247,0.4238,0.4125,0.2264,0.073,0.6371,0.6448,0.0206

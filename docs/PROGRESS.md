@@ -84,7 +84,7 @@
 - Exports original-unit centroid profiles and $B = 100$ bootstrap stability metrics for the primary proposal (`spherical, K=5`: `reports/tables/segment_profiles_spherical_k5.csv`, `reports/figures/segment_profiles_s3.png`) and the 4-cluster alternatives (`segment_profiles_spherical_k4.csv`, `segment_profiles_tied_k4.csv`).
 - `tests/test_segment.py`: 4 new tests; `pytest`: 20 passed.
 
-**Confirmed at Phase 3 human checkpoint: `covariance_type = 'spherical'`, `K = 5`**
+**Provisional choice at Phase 3 checkpoint (`docs/DECISIONS.md`): `covariance_type = 'spherical'`, `K = 5` (PROVISIONAL)**
 
 | Segment | Cluster ID | Customers | Share (%) | Mean / median recency (d) | Mean / median frequency | Mean / median monetary (£) | Mean tenure (d) | Mean basket (£) | AvePP | Mean Jaccard ($B=100$) |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -94,7 +94,7 @@
 | **New** | 2 | 636 | 16.06% | 23.19 / 22.0 | 1.42 / 1.0 | 301.97 / 284.55 | 320.97 | 234.11 | 0.8086 | 0.8758 |
 | **Hibernating** | 3 | 1,029 | 25.98% | 156.38 / 159.0 | 1.14 / 1.0 | 251.34 / 229.23 | 406.09 | 234.67 | 0.8723 | 0.9009 |
 
-- The user confirmed `K = 5`, `covariance_type = 'spherical'`, and segment names `Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating`.
+- `K = 5`, `covariance_type = 'spherical'`, and segment names `Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating` are marked **PROVISIONAL** in `docs/DECISIONS.md` (with `spherical, K=4` and `tied, K=4` preserved in `reports/tables/`).
 
 ## Phase 4: Membership probabilities, gate report, tree rules (done)
 
@@ -112,7 +112,7 @@
 | `bootstrap` | 3,961 | 152 | **3.84%** | 0.9329 | 0.9900 | 0.1041 | 0.9490 | 0.9339 | 0.9191 | 0.9409 | 0.9352 |
 
 - **Surrogate decision tree (`max_depth=4`):** 16 leaves, training fidelity **89.72%**, held-out 30% test fidelity **86.80%** (`Loyal` 91.87%, `Hibernating` 90.94%, `Champions` 87.01%, `New` 81.68%, `At-Risk` 79.64%).
-- **Confirmed at Phase 4 Gate Checkpoint:** user confirmed keeping both `gmm` (12.50% boundary share) and `bootstrap` (3.84% boundary share) and pairing segment confidence with 90-day lapse risk (`Q6`).
+- **Provisional decision at Phase 4 Gate Checkpoint (`docs/DECISIONS.md`):** keep both `gmm` (`12.50%` boundary share, provisional default for UI/API) and `bootstrap` (`3.84%` boundary share, stability check), lead the Overview with 90-day lapse risk, and pair segment confidence with 90-day lapse risk (`Q6`).
 
 ## Phase 5: Lapse model, S2 evaluation, S3 scoring (done)
 
@@ -124,14 +124,14 @@
 
 **Key numbers** (from `reports/tables/lapse_s1_cv.csv` and `reports/tables/lapse_s2_eval.csv`)
 
-| Split | Model | Customers | Base lapse rate | Mean predicted $P$ | Brier score $\downarrow$ | ROC-AUC $\uparrow$ | Log loss $\downarrow$ | 10-bin ECE $\downarrow$ |
-|---|---|---|---|---|---|---|---|---|
-| **S1 (5-fold OOF CV)** | `logistic_calibrated` (primary) | 3,256 | 0.4140 | 0.4140 | **0.2087** | 0.7177 | **0.6020** | **0.0081** |
-| **S1 (5-fold OOF CV)** | `tree_depth4_calibrated` | 3,256 | 0.4140 | 0.4134 | **0.2087** | **0.7186** | 0.6032 | 0.0267 |
-| **S1 (5-fold OOF CV)** | `two_bin_recency_90d` | 3,256 | 0.4140 | 0.4140 | 0.2299 | 0.6060 | 0.6521 | 0.0001 |
-| **S2 (Held-out test)** | `logistic_calibrated` (primary) | 3,247 | 0.4238 | 0.4008 | **0.2034** | **0.7390** | **0.5870** | 0.0343 |
-| **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.7106 | 0.6145 | 0.0774 |
-| **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.6371 | 0.6448 | **0.0206** |
+| Split | Model | Customers | Base lapse rate | Mean predicted $P$ | Brier score $\downarrow$ | Brier skill score $\uparrow$ | ROC-AUC $\uparrow$ | Log loss $\downarrow$ | 10-bin ECE $\downarrow$ |
+|---|---|---|---|---|---|---|---|---|---|
+| **S1 (5-fold OOF CV)** | `logistic_calibrated` (primary) | 3,256 | 0.4140 | 0.4140 | **0.2087** | 0.1397 | 0.7177 | **0.6020** | **0.0081** |
+| **S1 (5-fold OOF CV)** | `tree_depth4_calibrated` | 3,256 | 0.4140 | 0.4134 | **0.2087** | **0.1398** | **0.7186** | 0.6032 | 0.0267 |
+| **S1 (5-fold OOF CV)** | `two_bin_recency_90d` | 3,256 | 0.4140 | 0.4140 | 0.2299 | 0.0523 | 0.6060 | 0.6521 | 0.0001 |
+| **S2 (Held-out test)** | `logistic_calibrated` (primary) | 3,247 | 0.4238 | 0.4008 | **0.2034** | **0.1672** | **0.7390** | **0.5870** | 0.0343 |
+| **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.1225 | 0.7106 | 0.6145 | 0.0774 |
+| **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.0730 | 0.6371 | 0.6448 | **0.0206** |
 
 ## Phase 6: Probabilistic SQL templates Q1–Q6, possible-worlds check, `app.duckdb` (done)
 
@@ -147,7 +147,7 @@
 | Segment | K-Means hard count | GMM hard count | GMM expected size $\sum p$ (± std) | Bootstrap hard count | Bootstrap expected size $\sum p$ (± std) | Bootstrap hard revenue (£) | Bootstrap expected revenue (£) | Share of S3 revenue |
 |---|---|---|---|---|---|---|---|---|
 | **Champions** | 364 | 258 | 278.63 (± 7.43) | 278 | 290.55 (± 5.63) | 3,338,480.84 | 3,419,094.68 | 48.81% |
-| **Loyal** | 887 | 1,105 | 1,073.79 (± 14.71) | 1,116 | 1,110.32 (± 10.22) | 2,339,218.02 | 2259,067.53 | 32.25% |
+| **Loyal** | 887 | 1,105 | 1,073.79 (± 14.71) | 1,116 | 1,110.32 (± 10.22) | 2,339,218.02 | 2,259,067.53 | 32.25% |
 | **At-Risk** | 901 | 933 | 943.04 (± 16.99) | 928 | 941.95 (± 10.91) | 889,769.42 | 893,534.57 | 12.76% |
 | **New** | 736 | 636 | 670.19 (± 14.07) | 634 | 643.37 (± 7.81) | 188,798.36 | 193,135.37 | 2.76% |
 | **Hibernating** | 1,073 | 1,029 | 995.35 (± 12.79) | 1,005 | 974.81 (± 8.60) | 248,126.01 | 239,560.51 | 3.42% |

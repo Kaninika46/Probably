@@ -6,7 +6,7 @@
 
 We populate `segment_membership` for all 3,961 S3 customers using two methods (`3,961 × 5 × 2 = 39,610` rows):
 
-- **`method = 'gmm'`:** the analytic posterior probabilities `predict_proba` from the confirmed GMM (`covariance_type = 'spherical'`, $K = 5$, `n_init = 10`, `random_state = 42`).
+- **`method = 'gmm'`:** the analytic posterior probabilities `predict_proba` from the provisional GMM (`covariance_type = 'spherical'`, $K = 5$, `n_init = 10`, `random_state = 42`, recorded in `docs/DECISIONS.md`).
 - **`method = 'bootstrap'`:** $B = 100$ bootstrap resamples of the 3,961 S3 customers drawn with replacement. On each resample we refit the `spherical, K=5` GMM, predict hard labels for all 3,961 customers, and align the resample's cluster indices to the reference GMM labels using the Hungarian algorithm (`scipy.optimize.linear_sum_assignment`) on the contingency matrix. A customer's bootstrap probability $p_s$ is the fraction of the 100 fits that placed them in segment $s$.
 
 **2. Measure clustering stability (`reports/tables/bootstrap_stability.csv`, `reports/tables/segment_stability.csv`).**

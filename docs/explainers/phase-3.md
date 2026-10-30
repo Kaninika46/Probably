@@ -35,7 +35,7 @@ Source: `reports/tables/gmm_grid.csv`; chart: `reports/figures/gmm_bic_aic.png`.
 
 **4. Why `diag` and `full` are rejected despite negative BIC.** In S3, `frequency` is a discrete integer (`1, 2, 3, ...`). In `diag` and `full`, each component has its own variance parameter on the `frequency` axis. As shown in `reports/tables/gmm_diag_degeneracy.csv`, for `diag, K=4` one component collapses onto the exact plane `frequency = 1` (`n = 1,480` customers, `freq_min = 1, freq_max = 1`) and another onto `frequency = 2` (`n = 781` customers, `freq_min = 2, freq_max = 2`). Because the variance along `frequency` shrinks to the regularization floor (`1e-6`), the Gaussian density spikes, driving BIC to `-6,772.05` (`diag`) and `-9,638.22` (`full`) while slicing customers purely by integer order count and dropping silhouette to `0.10–0.18`. In contrast, `spherical` (one scalar variance per component across all 3 features) and `tied` (one shared $3 \times 3$ covariance matrix across all $K$ components) cannot collapse a single component onto an integer plane.
 
-**5. Proposed choice for the Phase 3 checkpoint: `spherical, K=5` (with `spherical, K=4` and `tied, K=4` as alternatives).**
+**5. Provisional choice for the Phase 3 checkpoint (`docs/DECISIONS.md`): `spherical, K=5` (PROVISIONAL; with `spherical, K=4` and `tied, K=4` preserved as alternatives).**
 
 - **Why `spherical, K=5` (Primary Proposal):**
   - **BIC & geometry:** BIC drops by 508.92 from $K=4$ (`28,512.82`) to $K=5$ (`28,003.90`), while maintaining a clean 3D silhouette of **0.3015** (matching K-Means $K=5$ at `0.3089`) and a meaningful boundary share of **12.50%** (`max_p < 0.6`).

@@ -89,9 +89,10 @@ GMM_COVARIANCE_TYPES = ["spherical", "tied", "diag", "full"]
 GMM_N_INIT = 10
 CAP_PERCENTILE = 99  # frequency and monetary are capped here before log1p
 
-# Confirmed at the Phase 3 checkpoint
+# PROVISIONAL Phase 3 & Phase 4 decisions (recorded in docs/DECISIONS.md)
 CHOSEN_K = 5
 CHOSEN_GMM_COV = "spherical"
+DEFAULT_METHOD = "gmm"  # provisional default for UI/API; 'bootstrap' is the stability check
 SEGMENT_DESCRIPTIONS = {
     "Champions": "Very recent buyers with the highest order frequency and wholesale-level spend.",
     "Loyal": "Regular repeat customers who bought recently with solid multi-order spend.",

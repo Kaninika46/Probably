@@ -11,14 +11,14 @@
 
 **3. Evaluate once on the held-out temporal test set S2 (`2011-09-10`, 3,247 customers, base lapse rate 42.38%).**
 
-| Split | Model | Customers | Base lapse rate | Mean predicted $P$ | Brier score $\downarrow$ | ROC-AUC $\uparrow$ | Log loss $\downarrow$ | 10-bin ECE $\downarrow$ |
-|---|---|---|---|---|---|---|---|---|
-| **S1 (5-fold OOF CV)** | `logistic_calibrated` (primary) | 3,256 | 0.4140 | 0.4140 | **0.2087** | 0.7177 | **0.6020** | **0.0081** |
-| **S1 (5-fold OOF CV)** | `tree_depth4_calibrated` | 3,256 | 0.4140 | 0.4134 | **0.2087** | **0.7186** | 0.6032 | 0.0267 |
-| **S1 (5-fold OOF CV)** | `two_bin_recency_90d` | 3,256 | 0.4140 | 0.4140 | 0.2299 | 0.6060 | 0.6521 | 0.0001 |
-| **S2 (Held-out test)** | `logistic_calibrated` (primary) | 3,247 | 0.4238 | 0.4008 | **0.2034** | **0.7390** | **0.5870** | 0.0343 |
-| **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.7106 | 0.6145 | 0.0774 |
-| **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.6371 | 0.6448 | **0.0206** |
+| Split | Model | Customers | Base lapse rate | Mean predicted $P$ | Brier score $\downarrow$ | Brier skill score $\uparrow$ | ROC-AUC $\uparrow$ | Log loss $\downarrow$ | 10-bin ECE $\downarrow$ |
+|---|---|---|---|---|---|---|---|---|---|
+| **S1 (5-fold OOF CV)** | `logistic_calibrated` (primary) | 3,256 | 0.4140 | 0.4140 | **0.2087** | 0.1397 | 0.7177 | **0.6020** | **0.0081** |
+| **S1 (5-fold OOF CV)** | `tree_depth4_calibrated` | 3,256 | 0.4140 | 0.4134 | **0.2087** | **0.1398** | **0.7186** | 0.6032 | 0.0267 |
+| **S1 (5-fold OOF CV)** | `two_bin_recency_90d` | 3,256 | 0.4140 | 0.4140 | 0.2299 | 0.0523 | 0.6060 | 0.6521 | 0.0001 |
+| **S2 (Held-out test)** | `logistic_calibrated` (primary) | 3,247 | 0.4238 | 0.4008 | **0.2034** | **0.1672** | **0.7390** | **0.5870** | 0.0343 |
+| **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.1225 | 0.7106 | 0.6145 | 0.0774 |
+| **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.0730 | 0.6371 | 0.6448 | **0.0206** |
 
 Sources: `reports/tables/lapse_s1_cv.csv`, `reports/tables/lapse_s2_eval.csv`, `reports/tables/lapse_reliability_bins_s2.csv`; chart: `reports/figures/lapse_reliability_s2.png`.
 

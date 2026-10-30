@@ -77,3 +77,22 @@ def test_line_revenue_is_quantity_times_price(con):
         "SELECT COUNT(*) FROM clean_sales WHERE ABS(line_revenue - quantity * price) > 1e-9"
     ).fetchone()[0]
     assert bad == 0
+
+
+def test_revenue_numbers_are_consistent_across_tables(con):
+    """Verify raw_totals.csv, cleaning_funnel.csv and clean_sales_summary.csv agree."""
+    import pandas as pd
+
+    raw_tot = pd.read_csv(config.TABLES_DIR / "raw_totals.csv").iloc[0]
+    funnel = pd.read_csv(config.TABLES_DIR / "cleaning_funnel.csv")
+    summary = pd.read_csv(config.TABLES_DIR / "clean_sales_summary.csv").iloc[0]
+
+    # Steps 1-5 transform raw_transactions into clean_sales
+    removed_steps_1_to_5 = float(funnel.loc[funnel["step_no"] <= 5, "revenue_affected"].sum())
+    expected_clean_rev = float(raw_tot["total_revenue"]) - removed_steps_1_to_5
+    assert abs(expected_clean_rev - float(summary["total_revenue"])) < 0.05
+
+    # Step 6 accounts for the difference between total clean revenue and customer-identified revenue
+    step6_removed = float(funnel.loc[funnel["step_no"] == 6, "revenue_affected"].iloc[0])
+    expected_cust_rev = float(summary["total_revenue"]) - step6_removed
+    assert abs(expected_cust_rev - float(summary["revenue_with_customer"])) < 0.05

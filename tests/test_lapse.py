@@ -60,13 +60,14 @@ def test_s2_evaluation_and_reliability_outputs():
     assert set(s1_cv["model"]) == expected_models
     assert set(s2_eval["model"]) == expected_models
 
-    for col in ["brier_score", "roc_auc", "log_loss", "ece_10_bins"]:
+    for col in ["brier_score", "brier_skill_score", "roc_auc", "log_loss", "ece_10_bins"]:
         assert (s2_eval[col] > 0).all()
 
-    # Primary model must outperform the two-bin baseline on S2 Brier, ROC-AUC and log loss.
+    # Primary model must outperform the two-bin baseline on S2 Brier, Brier skill, ROC-AUC and log loss.
     log_row = s2_eval[s2_eval["model"] == "logistic_calibrated"].iloc[0]
     base_row = s2_eval[s2_eval["model"] == "two_bin_recency_90d"].iloc[0]
     assert log_row["brier_score"] < base_row["brier_score"]
+    assert log_row["brier_skill_score"] > base_row["brier_skill_score"]
     assert log_row["roc_auc"] > base_row["roc_auc"]
     assert log_row["log_loss"] < base_row["log_loss"]
 

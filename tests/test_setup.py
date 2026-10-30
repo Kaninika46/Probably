@@ -27,3 +27,16 @@ def test_app_connection_is_read_only(tmp_path):
     with pytest.raises(duckdb.Error):
         reader.execute("INSERT INTO t VALUES (1)")
     reader.close()
+
+
+def test_all_text_files_are_valid_utf8():
+    """Every text deliverable and source file in the repo must decode as UTF-8 without U+FFFD."""
+    text_exts = {".py", ".sql", ".md", ".csv", ".json", ".ipynb", ".txt", ".ini", ".bat"}
+    skip_dirs = {".venv", ".git", ".pytest_cache", "node_modules", "dist"}
+    for path in config.PROJECT_ROOT.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in text_exts:
+            continue
+        if any(part in skip_dirs for part in path.parts):
+            continue
+        content = path.read_text(encoding="utf-8")
+        assert "\ufffd" not in content, f"Replacement character U+FFFD found in {path}"

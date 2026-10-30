@@ -28,14 +28,17 @@ tree,n_leaves,16.0,Number of leaves in depth-4 surrogate tree
 tree,train_fidelity_pct,89.72,70% train split agreement with GMM
 tree,test_fidelity_pct,86.8,30% held-out test split agreement with GMM
 lapse,s2_logistic_calibrated_brier,0.2034,S2 Brier score (logistic_calibrated)
+lapse,s2_logistic_calibrated_brier_skill_score,0.1672,S2 Brier skill score vs base rate (logistic_calibrated)
 lapse,s2_logistic_calibrated_roc_auc,0.739,S2 ROC-AUC (logistic_calibrated)
 lapse,s2_logistic_calibrated_log_loss,0.587,S2 log loss (logistic_calibrated)
 lapse,s2_logistic_calibrated_ece_10_bins,0.0343,S2 10-bin ECE (logistic_calibrated)
 lapse,s2_tree_depth4_calibrated_brier,0.2143,S2 Brier score (tree_depth4_calibrated)
+lapse,s2_tree_depth4_calibrated_brier_skill_score,0.1225,S2 Brier skill score vs base rate (tree_depth4_calibrated)
 lapse,s2_tree_depth4_calibrated_roc_auc,0.7106,S2 ROC-AUC (tree_depth4_calibrated)
 lapse,s2_tree_depth4_calibrated_log_loss,0.6145,S2 log loss (tree_depth4_calibrated)
 lapse,s2_tree_depth4_calibrated_ece_10_bins,0.0774,S2 10-bin ECE (tree_depth4_calibrated)
 lapse,s2_two_bin_recency_90d_brier,0.2264,S2 Brier score (two_bin_recency_90d)
+lapse,s2_two_bin_recency_90d_brier_skill_score,0.073,S2 Brier skill score vs base rate (two_bin_recency_90d)
 lapse,s2_two_bin_recency_90d_roc_auc,0.6371,S2 ROC-AUC (two_bin_recency_90d)
 lapse,s2_two_bin_recency_90d_log_loss,0.6448,S2 log loss (two_bin_recency_90d)
 lapse,s2_two_bin_recency_90d_ece_10_bins,0.0206,S2 10-bin ECE (two_bin_recency_90d)

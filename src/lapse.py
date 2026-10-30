@@ -170,15 +170,21 @@ def expected_calibration_error(
 
 
 def compute_metrics_row(model_name: str, split_name: str, y_true: np.ndarray, y_prob: np.ndarray) -> dict:
-    """Compute Brier score, ROC-AUC, log loss and 10-bin ECE."""
+    """Compute Brier score, Brier skill score (vs base-rate climatology), ROC-AUC, log loss and 10-bin ECE."""
     ece, _ = expected_calibration_error(y_true, y_prob, config.ECE_BINS)
+    brier = float(brier_score_loss(y_true, y_prob))
+    base_rate = float(np.mean(y_true))
+    # Climatology reference Brier score: predicting the constant split base rate for every customer
+    brier_ref = base_rate * (1.0 - base_rate)
+    brier_skill = 1.0 - (brier / brier_ref) if brier_ref > 0 else 0.0
     return {
         "split": split_name,
         "model": model_name,
         "n_customers": len(y_true),
-        "base_lapse_rate": round(float(np.mean(y_true)), 4),
+        "base_lapse_rate": round(base_rate, 4),
         "mean_predicted_p": round(float(np.mean(y_prob)), 4),
-        "brier_score": round(float(brier_score_loss(y_true, y_prob)), 4),
+        "brier_score": round(brier, 4),
+        "brier_skill_score": round(brier_skill, 4),
         "roc_auc": round(float(roc_auc_score(y_true, y_prob)), 4),
         "log_loss": round(float(log_loss(y_true, y_prob)), 4),
         "ece_10_bins": round(ece, 4),

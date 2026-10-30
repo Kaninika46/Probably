@@ -25,8 +25,10 @@ README_RESULTS_MD_PATH = config.TABLES_DIR / "readme_results.md"
 
 
 def build_cleaning_table_md() -> str:
-    """Format `reports/tables/cleaning_funnel.csv` as a Markdown table."""
+    """Format `reports/tables/cleaning_funnel.csv` and `clean_sales_summary.csv` as Markdown."""
     df = pd.read_csv(config.TABLES_DIR / "cleaning_funnel.csv")
+    raw_tot = pd.read_csv(config.TABLES_DIR / "raw_totals.csv").iloc[0]
+    clean_sum = pd.read_csv(config.TABLES_DIR / "clean_sales_summary.csv").iloc[0]
     lines = [
         "### 1. Data Cleaning Funnel (`reports/tables/cleaning_funnel.csv`)",
         "",
@@ -41,6 +43,11 @@ def build_cleaning_table_md() -> str:
             f"{float(row['share_of_revenue_before_step_pct']):.2f}% | "
             f"{float(row['share_of_raw_revenue_pct']):.2f}% |"
         )
+    lines.extend([
+        "",
+        f"- **Raw net revenue (`reports/tables/raw_totals.csv`):** `£{float(raw_tot['total_revenue']):,.2f}` across `{int(raw_tot['n_rows']):,}` rows.",
+        f"- **Clean product sales revenue (`reports/tables/clean_sales_summary.csv`):** `£{float(clean_sum['total_revenue']):,.2f}` across `{int(clean_sum['n_lines']):,}` rows (`£{float(clean_sum['revenue_with_customer']):,.2f}` across `{int(clean_sum['n_lines_with_customer']):,}` customer-identified rows).",
+    ])
     return "\n".join(lines)
 
 
@@ -146,15 +153,16 @@ def build_lapse_table_md() -> str:
     lines = [
         "### 6. Held-Out S2 90-Day Lapse Model Evaluation (`reports/tables/lapse_s2_eval.csv`)",
         "",
-        "| Model | Test Customers (S2) | Base Lapse Rate | Mean Predicted `p` | Brier Score | ROC-AUC | Log Loss | 10-Bin ECE |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Model | Test Customers (S2) | Base Lapse Rate | Mean Predicted `p` | Brier Score | Brier Skill Score | ROC-AUC | Log Loss | 10-Bin ECE |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for _, row in df.iterrows():
         lines.append(
             f"| `{row['model']}` | {int(row['n_customers']):,} | "
             f"{float(row['base_lapse_rate']):.4f} | {float(row['mean_predicted_p']):.4f} | "
-            f"{float(row['brier_score']):.4f} | {float(row['roc_auc']):.4f} | "
-            f"{float(row['log_loss']):.4f} | {float(row['ece_10_bins']):.4f} |"
+            f"{float(row['brier_score']):.4f} | {float(row['brier_skill_score']):.4f} | "
+            f"{float(row['roc_auc']):.4f} | {float(row['log_loss']):.4f} | "
+            f"{float(row['ece_10_bins']):.4f} |"
         )
     return "\n".join(lines)
 

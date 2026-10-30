@@ -61,6 +61,9 @@ Every table below is generated automatically by [`src/report_tables.py`](src/rep
 | 5 | Non-product stock codes | 1,007,913 | 1,003,357 | 4,556 | 832,398.81 | 4.07% | 4.32% |
 | 6 | Missing customer_id (excluded from customer analysis) | 1,003,357 | 776,596 | 226,761 | 2,575,278.90 | 13.11% | 13.35% |
 
+- **Raw net revenue (`reports/tables/raw_totals.csv`):** `£19,287,250.57` across `1,067,371` rows.
+- **Clean product sales revenue (`reports/tables/clean_sales_summary.csv`):** `£19,643,861.64` across `1,003,357` rows (`£17,068,582.74` across `776,596` customer-identified rows).
+
 ### 2. Temporal Snapshots & Base Lapse Rates (`reports/tables/snapshot_summary.csv`)
 
 | Snapshot | Snapshot Date | Feature Window | Customers | Mean Recency (d) | Mean Frequency | Mean Monetary (GBP) | 90-Day Lapse Rate |
@@ -101,11 +104,11 @@ Every table below is generated automatically by [`src/report_tables.py`](src/rep
 
 ### 6. Held-Out S2 90-Day Lapse Model Evaluation (`reports/tables/lapse_s2_eval.csv`)
 
-| Model | Test Customers (S2) | Base Lapse Rate | Mean Predicted `p` | Brier Score | ROC-AUC | Log Loss | 10-Bin ECE |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| `logistic_calibrated` | 3,247 | 0.4238 | 0.4008 | 0.2034 | 0.7390 | 0.5870 | 0.0343 |
-| `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.7106 | 0.6145 | 0.0774 |
-| `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.6371 | 0.6448 | 0.0206 |
+| Model | Test Customers (S2) | Base Lapse Rate | Mean Predicted `p` | Brier Score | Brier Skill Score | ROC-AUC | Log Loss | 10-Bin ECE |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `logistic_calibrated` | 3,247 | 0.4238 | 0.4008 | 0.2034 | 0.1672 | 0.7390 | 0.5870 | 0.0343 |
+| `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.1225 | 0.7106 | 0.6145 | 0.0774 |
+| `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.0730 | 0.6371 | 0.6448 | 0.0206 |
 
 ### 7. Natural-Language Engine Evaluation (`reports/tables/nl_summary.csv`)
 
