@@ -1,0 +1,4 @@
+feature,raw_min,raw_median,raw_max,cap_99th_pct,n_customers_capped,log1p_mean,log1p_std
+recency_days,1.0,43.0,275.0,275.0,0,3.6773,1.2198
+frequency,1.0,2.0,173.0,26.0,35,1.2724,0.6155
+monetary,5.9,631.89,221437.0,15942.81,40,6.4941,1.1849

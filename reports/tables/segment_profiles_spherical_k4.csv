@@ -1,0 +1,5 @@
+cluster_id,n_customers,mean_recency_days,median_recency_days,mean_frequency,median_frequency,mean_monetary,median_monetary,mean_tenure_days,mean_avg_basket,ave_pp,share_of_customers_pct,jaccard_mean,bootstrap_ari_median,bootstrap_ari_iqr,proposed_segment
+0,698,11.91,8.0,10.99,8.0,6559.32,3015.0,534.47,628.32,0.9086,17.62,0.8765,0.9061,0.0861,Champions
+2,1198,52.69,40.0,3.47,3.0,1427.25,1117.71,477.53,512.49,0.8095,30.24,0.8636,0.9061,0.0861,Loyal
+1,581,16.24,16.0,1.66,2.0,381.45,334.56,333.43,250.49,0.7929,14.67,0.8369,0.9061,0.0861,New
+3,1484,136.03,125.0,1.26,1.0,333.23,290.91,397.65,284.32,0.8994,37.47,0.9061,0.9061,0.0861,At-Risk

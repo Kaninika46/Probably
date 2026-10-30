@@ -8,7 +8,7 @@ New phases are added to PHASES as they are built.
 
 import argparse
 
-from src import clean, eda, features, ingest
+from src import clean, eda, features, ingest, segment
 
 
 def run_phase_1() -> None:
@@ -23,9 +23,15 @@ def run_phase_2() -> None:
     features.run()
 
 
+def run_phase_3() -> None:
+    """Run K-Means and GMM grids on S3 and export candidate segment profiles."""
+    segment.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
+    3: run_phase_3,
 }
 
 

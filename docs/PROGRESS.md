@@ -74,3 +74,27 @@
 | S2 | 2011-09-10 | 2010-12-10 – 2011-09-09 | 2011-09-10 – 2011-12-09 | 3,247 | 88.36 / 69.0 | 3.40 / 2.0 | 1,555.65 / 552.00 | 405.23 / 460.0 | 401.43 / 283.12 | 1,871 (57.62%) | 1,376 | 42.38% |
 | S3 | 2011-12-10 | 2011-03-10 – 2011-12-09 | — | 3,961 | 71.38 / 43.0 | 3.70 / 2.0 | 1,768.34 / 631.89 | 436.50 / 478.0 | 408.99 / 296.64 | — | — | — |
 
+## Phase 3: Segmentation grids and candidate profiles (at checkpoint)
+
+**What was done**
+- `src/segment.py` preprocesses S3 RFM (`3,961` customers): caps `frequency` at the 99th percentile (`26.00` invoices, 35 customers capped) and `monetary` at the 99th percentile (`£15,942.81`, 40 customers capped), applies `log1p`, and standardizes with `StandardScaler` (`reports/tables/s3_preprocessing.csv`).
+- Runs the K-Means grid for $K = 2\dots 8$ (`reports/tables/kmeans_grid.csv`, `reports/figures/kmeans_selection.png`).
+- Runs the GMM grid for $K = 2\dots 8 \times \text{covariance\_type} \in \{\text{spherical, tied, diag, full}\}$ with `n_init=10` (`reports/tables/gmm_grid.csv`, `reports/figures/gmm_bic_aic.png`).
+- Documents why `diag` and `full` produce artificially negative BIC (`reports/tables/gmm_diag_degeneracy.csv`): components collapse onto discrete integer planes `frequency = 1` (`1,480` customers, `min = max = 1`) and `frequency = 2` (`781` customers, `min = max = 2`).
+- Exports original-unit centroid profiles and $B = 100$ bootstrap stability metrics for the primary proposal (`spherical, K=5`: `reports/tables/segment_profiles_spherical_k5.csv`, `reports/figures/segment_profiles_s3.png`) and the 4-cluster alternatives (`segment_profiles_spherical_k4.csv`, `segment_profiles_tied_k4.csv`).
+- `tests/test_segment.py`: 4 new tests; `pytest`: 20 passed.
+
+**Proposed choice for Phase 3 human checkpoint: `covariance_type = 'spherical'`, `K = 5`**
+
+| Proposed segment | Cluster ID | Customers | Share (%) | Mean / median recency (d) | Mean / median frequency | Mean / median monetary (£) | Mean tenure (d) | Mean basket (£) | AvePP | Mean Jaccard ($B=100$) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Champions** | 4 | 258 | 6.51% | 8.60 / 5.0 | 18.66 / 14.0 | 12,635.95 / 5,455.26 | 620.17 | 620.79 | 0.8934 | 0.8669 |
+| **Loyal** | 0 | 1,105 | 27.90% | 21.72 / 17.0 | 5.04 / 5.0 | 2,154.78 / 1,579.14 | 478.98 | 530.84 | 0.8490 | 0.8775 |
+| **At-Risk** | 1 | 933 | 23.55% | 86.66 / 72.0 | 2.36 / 2.0 | 978.14 / 786.57 | 447.68 | 517.56 | 0.7880 | 0.8449 |
+| **New** | 2 | 636 | 16.06% | 23.19 / 22.0 | 1.42 / 1.0 | 301.97 / 284.55 | 320.97 | 234.11 | 0.8086 | 0.8758 |
+| **Hibernating** | 3 | 1,029 | 25.98% | 156.38 / 159.0 | 1.14 / 1.0 | 251.34 / 229.23 | 406.09 | 234.67 | 0.8723 | 0.9009 |
+
+- Bootstrap ARI median = `0.8674` (IQR `0.0977`); all 5 segments have mean Jaccard $\ge 0.8449 > 0.75$ (`stable`); boundary share (`max_p < 0.6`) = `12.50%`.
+- **Open checkpoint decision:** awaiting human confirmation of `K = 5`, `covariance_type = 'spherical'`, and segment names (`Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating`)—or selection of the `K = 4` alternative—before running Phase 4.
+
+

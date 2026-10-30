@@ -1,0 +1,5 @@
+cluster,n_customers,freq_min,freq_median,freq_max,recency_mean,monetary_mean
+0,651,2,8.0,173,16.86,7068.73
+1,1049,3,4.0,7,44.99,1225.07
+2,781,2,2.0,2,71.06,705.38
+3,1480,1,1.0,1,114.24,382.87
