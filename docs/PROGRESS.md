@@ -96,7 +96,7 @@
 
 - The user confirmed `K = 5`, `covariance_type = 'spherical'`, and segment names `Champions`, `Loyal`, `At-Risk`, `New`, `Hibernating`.
 
-## Phase 4: Membership probabilities, gate report, tree rules (at checkpoint)
+## Phase 4: Membership probabilities, gate report, tree rules (done)
 
 **What was done**
 - `src/membership.py` builds the `segments` table (5 rows) and the BID `segment_membership` table (`39,610` rows = `3,961` S3 customers × 5 segments × 2 methods `'gmm'` and `'bootstrap'`).
@@ -112,7 +112,26 @@
 | `bootstrap` | 3,961 | 152 | **3.84%** | 0.9329 | 0.9900 | 0.1041 | 0.9490 | 0.9339 | 0.9191 | 0.9409 | 0.9352 |
 
 - **Surrogate decision tree (`max_depth=4`):** 16 leaves, training fidelity **89.72%**, held-out 30% test fidelity **86.80%** (`Loyal` 91.87%, `Hibernating` 90.94%, `Champions` 87.01%, `New` 81.68%, `At-Risk` 79.64%).
-- **Open checkpoint decision (Phase 4 Go/No-Go Gate):**
-  - Under `gmm`, the boundary share is **12.50%** (495 customers), making **segment confidence** a meaningful headline; under `bootstrap`, the boundary share is **3.84%** (152 customers), where **lapse risk** is the stronger headline uncertainty. Awaiting human decision on the headline framing before proceeding.
+- **Confirmed at Phase 4 Gate Checkpoint:** user confirmed keeping both `gmm` (12.50% boundary share) and `bootstrap` (3.84% boundary share) and pairing segment confidence with 90-day lapse risk (`Q6`).
+
+## Phase 5: Lapse model, S2 evaluation, S3 scoring (done)
+
+**What was done**
+- `src/lapse.py` trains the primary calibrated logistic regression (`log1p` $\to$ `StandardScaler` $\to$ `LogisticRegression` wrapped in `CalibratedClassifierCV(method='sigmoid', cv=5)`) on S1 only (`3,256` customers, base lapse rate `41.40%`), alongside the two-bin recency rule (`recency_days > 90`: `54.71%` vs `<= 90`: `31.74%`, `reports/tables/lapse_baseline_s1_rates.csv`) and a calibrated depth-4 decision tree.
+- Evaluates 5-fold out-of-fold CV on S1 (`reports/tables/lapse_s1_cv.csv`) and tests once on held-out S2 (`3,247` customers, base lapse rate `42.38%`, `reports/tables/lapse_s2_eval.csv`, `reports/tables/lapse_reliability_bins_s2.csv`, `reports/figures/lapse_reliability_s2.png`).
+- Scores all `3,961` S3 customers into the tuple-independent `lapse_risk` table (`model_version = '4cfb5e3'`) and exports `reports/tables/lapse_s3_by_segment.csv`.
+- `tests/test_lapse.py`: 3 new tests; `pytest`: 28 passed.
+
+**Key numbers** (from `reports/tables/lapse_s1_cv.csv` and `reports/tables/lapse_s2_eval.csv`)
+
+| Split | Model | Customers | Base lapse rate | Mean predicted $P$ | Brier score $\downarrow$ | ROC-AUC $\uparrow$ | Log loss $\downarrow$ | 10-bin ECE $\downarrow$ |
+|---|---|---|---|---|---|---|---|---|
+| **S1 (5-fold OOF CV)** | `logistic_calibrated` (primary) | 3,256 | 0.4140 | 0.4140 | **0.2087** | 0.7177 | **0.6020** | **0.0081** |
+| **S1 (5-fold OOF CV)** | `tree_depth4_calibrated` | 3,256 | 0.4140 | 0.4134 | **0.2087** | **0.7186** | 0.6032 | 0.0267 |
+| **S1 (5-fold OOF CV)** | `two_bin_recency_90d` | 3,256 | 0.4140 | 0.4140 | 0.2299 | 0.6060 | 0.6521 | 0.0001 |
+| **S2 (Held-out test)** | `logistic_calibrated` (primary) | 3,247 | 0.4238 | 0.4008 | **0.2034** | **0.7390** | **0.5870** | 0.0343 |
+| **S2 (Held-out test)** | `tree_depth4_calibrated` | 3,247 | 0.4238 | 0.3801 | 0.2143 | 0.7106 | 0.6145 | 0.0774 |
+| **S2 (Held-out test)** | `two_bin_recency_90d` | 3,247 | 0.4238 | 0.4125 | 0.2264 | 0.6371 | 0.6448 | **0.0206** |
+
 
 

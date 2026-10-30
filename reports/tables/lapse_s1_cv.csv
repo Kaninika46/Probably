@@ -1,0 +1,4 @@
+split,model,n_customers,base_lapse_rate,mean_predicted_p,brier_score,roc_auc,log_loss,ece_10_bins
+S1_5fold_oof,logistic_calibrated,3256,0.414,0.414,0.2087,0.7177,0.602,0.0081
+S1_5fold_oof,tree_depth4_calibrated,3256,0.414,0.4134,0.2087,0.7186,0.6032,0.0267
+S1_5fold_oof,two_bin_recency_90d,3256,0.414,0.414,0.2299,0.606,0.6521,0.0001

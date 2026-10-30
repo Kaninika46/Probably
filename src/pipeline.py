@@ -8,7 +8,7 @@ New phases are added to PHASES as they are built.
 
 import argparse
 
-from src import clean, eda, features, ingest, membership, rules, segment
+from src import clean, eda, features, ingest, lapse, membership, rules, segment
 
 
 def run_phase_1() -> None:
@@ -34,11 +34,17 @@ def run_phase_4() -> None:
     rules.run()
 
 
+def run_phase_5() -> None:
+    """Train calibrated S1 lapse model, evaluate on S2, score S3 into lapse_risk."""
+    lapse.run()
+
+
 PHASES = {
     1: run_phase_1,
     2: run_phase_2,
     3: run_phase_3,
     4: run_phase_4,
+    5: run_phase_5,
 }
 
 

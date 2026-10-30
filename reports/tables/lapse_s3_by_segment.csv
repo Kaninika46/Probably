@@ -1,0 +1,6 @@
+segment,n_customers,mean_p_lapse_90d,median_p_lapse_90d,n_probably_lapsing_ge_0_66
+Hibernating,1005,0.5746,0.577,54
+New,634,0.4972,0.5004,14
+At-Risk,928,0.3801,0.3803,0
+Loyal,1116,0.2084,0.2027,0
+Champions,278,0.0618,0.0645,0
