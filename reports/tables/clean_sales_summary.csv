@@ -1,0 +1,2 @@
+n_lines,n_lines_with_customer,n_invoices,n_customers,n_products,n_countries,total_revenue,revenue_with_customer,first_invoice_date,last_invoice_date
+1003357,776596,39516,5852,4896,43,19643861.64,17068582.74,2009-12-01 07:45:00,2011-12-09 12:50:00

@@ -1,0 +1,7 @@
+step_no,rule,rows_before,rows_after,rows_removed,revenue_affected,revenue_share_pct
+1,Overlap duplicates between sheets,1067371,1044848,22523,377488.45,1.96
+2,Remaining exact duplicates,1044848,1033036,11812,54228.42,0.29
+3,Cancellations moved to returns,1033036,1013932,19104,-1462050.61,-7.75
+4,Quantity or price not positive,1013932,1007913,6019,-158676.14,-0.78
+5,Non-product stock codes,1007913,1003357,4556,832398.81,4.07
+6,Missing customer_id (excluded from customer analysis),1003357,776596,226761,2575278.9,13.11
