@@ -1,0 +1,20 @@
+# Raw data is never committed (CLAUDE.md rule 5)
+data/raw/
+
+# DuckDB files are rebuilt by the pipeline...
+*.duckdb
+*.duckdb.wal
+# ...except the small app database, which the deployed app needs
+!app/app.duckdb
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
