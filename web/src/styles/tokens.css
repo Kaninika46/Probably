@@ -1,0 +1,190 @@
+/* web/src/styles/tokens.css
+ * Design tokens from FRONTEND.md section 3: "colour only means data".
+ * Light theme is default (projector-friendly); dark theme activates via [data-theme="dark"].
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Core monochrome surfaces and ink */
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F0F2F5;
+  --ink: #12161C;
+  --ink-2: #3A4250;
+  --muted: #6B7380;
+  --line: #E2E5EA;
+  --focus: #12161C;
+
+  /* Segment colours (Okabe-Ito, colour-blind safe) */
+  --seg-champions: #009E73;
+  --seg-loyal: #0072B2;
+  --seg-new: #CC79A7;
+  --seg-at-risk: #E69F00;
+  --seg-hibernating: #7A7F87;
+
+  /* Sequential lapse-risk ramp (p = 0 to p = 1) */
+  --lapse-1: #FDE8E7;
+  --lapse-2: #F7B4AE;
+  --lapse-3: #F04438;
+  --lapse-4: #C0261B;
+  --lapse-5: #7A1A12;
+  --lapse-bar: #F04438;
+
+  /* Hairline card shadow */
+  --card-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+[data-theme="dark"] {
+  --bg: #0E1116;
+  --surface: #151A21;
+  --surface-2: #1C222B;
+  --ink: #ECEFF3;
+  --ink-2: #C9CFD8;
+  --muted: #9AA3AF;
+  --line: #2A313B;
+  --focus: #ECEFF3;
+
+  /* Dark-mode segment colours */
+  --seg-champions: #2BC48F;
+  --seg-loyal: #4FA3E0;
+  --seg-new: #E59AC4;
+  --seg-at-risk: #F2B33D;
+  --seg-hibernating: #A3A9B1;
+
+  /* Lighter lapse-risk ramp for dark backgrounds */
+  --lapse-1: #3B1816;
+  --lapse-2: #6E241E;
+  --lapse-3: #F04438;
+  --lapse-4: #F7796E;
+  --lapse-5: #FBC0BA;
+  --lapse-bar: #F55B4F;
+
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: "Figtree", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography classes from FRONTEND.md section 3 */
+.text-display {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -0.02em;
+}
+
+.text-h1 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 34px;
+  letter-spacing: -0.015em;
+}
+
+.text-h2 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-family: "Figtree", sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.text-small {
+  font-family: "Figtree", sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.text-code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.label-caps {
+  font-family: "Figtree", sans-serif;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Standard card surface */
+.card-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Primary solid ink button */
+.btn-primary {
+  background-color: var(--ink);
+  color: var(--bg);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 8px 16px;
+  transition: opacity 160ms ease-out;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-primary:focus-visible,
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Motion transitions */
+.transition-smooth {
+  transition: all 175ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

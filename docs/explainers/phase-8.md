@@ -1,4 +1,6 @@
-# Phase 8 explained: Streamlit app, read-only database safety and deployment prep
+# Phase 8 explained: Initial UI prototype, read-only database safety and deployment prep
+
+> **Note (superseded in Phase 10):** The initial Streamlit UI (`app/streamlit_app.py` and `tests/test_app.py`) described below was replaced in Phase 10 by the read-only FastAPI backend (`api/main.py`, `api/schemas.py`, `tests/test_api.py`) and React + TypeScript + Tailwind frontend (`web/`). The core read-only DuckDB architecture (`app/app.duckdb`, `read_only=True`) and parameterised query guarantees remain identical. See [`docs/explainers/phase-10.md`](phase-10.md) for the current web architecture.
 
 ## What we did, in plain words
 
