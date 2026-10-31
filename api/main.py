@@ -615,9 +615,11 @@ def post_ask(req: schemas.AskRequest) -> schemas.AskResponse:
         expected_count: float | None = None
         expected_revenue: float | None = None
 
-        if parsed.template_id in ("Q1", "Q5") and not df.empty:
-            expected_count = round(float(df["p"].sum()), 2)
-            expected_revenue = round(float((df["p"] * df["monetary"]).sum()), 2)
+        if parsed.template_id in ("Q1", "Q5"):
+            expected_count = round(float(df["p"].sum()), 2) if not df.empty else 0.0
+            expected_revenue = (
+                round(float((df["p"] * df["monetary"]).sum()), 2) if not df.empty else 0.0
+            )
             seg_target = params.get("seg")
             if seg_target:
                 q3_df = prob_queries.run_template(
@@ -626,18 +628,22 @@ def post_ask(req: schemas.AskRequest) -> schemas.AskResponse:
                 seg_row = q3_df[q3_df["segment"] == seg_target]
                 if not seg_row.empty:
                     hard_count = int(seg_row.iloc[0]["hard_count"])
-        elif parsed.template_id == "Q2" and not df.empty:
+        elif parsed.template_id == "Q2":
             expected_count = float(matched)
-            expected_revenue = round(float(df["monetary"].sum()), 2)
+            expected_revenue = round(float(df["monetary"].sum()), 2) if not df.empty else 0.0
         elif parsed.template_id == "Q3" and not df.empty:
             hard_count = int(df["hard_count"].sum())
             expected_count = round(float(df["expected_size"].sum()), 2)
         elif parsed.template_id == "Q4" and not df.empty:
             hard_count = int(df["hard_count"].sum())
             expected_revenue = round(float(df["expected_revenue"].sum()), 2)
-        elif parsed.template_id == "Q6" and not df.empty:
-            expected_count = round(float(df["p_segment"].sum()), 2)
-            expected_revenue = round(float((df["p_segment"] * df["monetary"]).sum()), 2)
+        elif parsed.template_id == "Q6":
+            expected_count = round(float(df["p_segment"].sum()), 2) if not df.empty else 0.0
+            expected_revenue = (
+                round(float((df["p_segment"] * df["monetary"]).sum()), 2)
+                if not df.empty
+                else 0.0
+            )
             hard_count = matched
     finally:
         con.close()

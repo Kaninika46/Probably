@@ -185,3 +185,35 @@
 - Created `notebooks/presentation_walkthrough.ipynb` calling `src/` modules and displaying key tables and a live NL query for the viva presentation.
 - Wrote `docs/explainers/phase-9.md` and `tests/test_phase9.py` (5 new tests verifying `report_tables.py` vs `README.md`, `docs/references.md` citations, zero placeholders across all deliverables, `eval/questions_test.csv` header-only rule, and notebook validity); `pytest`: 50 passed.
 
+
+## Phase 10: Morning fixes, FastAPI read-only API, React web app, and Streamlit removal (done)
+
+**What was done**
+- **Morning review fixes:**
+  - Standardised and verified the exact revenue figures across all tables, reports, and tests:
+    - Raw net revenue: £19,287,250.57 across 1,067,371 rows (`raw_totals.csv`).
+    - Clean product sales revenue: £19,643,861.64 across 1,003,357 rows (`clean_sales_summary.csv`).
+    - Customer-identified clean revenue: £17,068,582.74 across 776,596 rows (`clean_sales_summary.csv`).
+    - S3 9-month customer revenue: £7,004,392.66 across 3,961 customers (`snapshot_summary.csv`).
+    - Added automated consistency test `test_revenue_numbers_are_consistent_across_tables` in `tests/test_cleaning.py`.
+  - Created `docs/DECISIONS.md` documenting confirmed Phase 1 decisions and formally marking Phase 3 (`K = 5`, `covariance_type = 'spherical'`) and Phase 4 (`DEFAULT_METHOD = 'gmm'`, bootstrap stability validation) as **PROVISIONAL**.
+  - Added `brier_skill_score` across all lapse evaluation modules, CSV tables, and reports: S2 `logistic_calibrated` achieves `0.1672` (+16.72% skill over the S2 base lapse rate of 42.38%), compared to `0.1225` (+12.25%) for calibrated depth-4 tree and `0.0730` (+7.30%) for the two-bin recency baseline.
+  - Added `test_all_text_files_are_valid_utf8` in `tests/test_setup.py` verifying zero U+FFFD replacement characters.
+- **FastAPI backend (`api/main.py`, `api/schemas.py`):**
+  - Built a clean, read-only REST boundary exposing `/api/health`, `/api/meta`, `POST /api/ask`, `/api/segments`, `/api/segments/map`, `/api/customers/{customer_id}`, `/api/lapse`, `/api/quality`, `/api/assets/architecture.png`, and SPA static file serving from `web/dist`.
+  - Enforced storage-level read-only DuckDB connection (`duckdb.connect(..., read_only=True)`) and allow-listed template execution (zero string-interpolated SQL).
+  - Built `tests/test_api.py` verifying all endpoints, hedge word parsing, injection refusal, and read-only write protection.
+- **React + TypeScript + Tailwind web application (`web/`):**
+  - Implemented the strict design specification: neutral chrome in light mode (default) and dark mode, Okabe–Ito color-blind safe segment palette (`Champions` `#009E73`, `Loyal` `#0072B2`, `New` `#CC79A7`, `At-Risk` `#E69F00`, `Hibernating` `#7A7F87`), 4-step sequential red ramp for 90-day lapse risk, self-hosted fonts (`Bricolage Grotesque`, `Figtree`, `JetBrains Mono`), tabular numbers on all metrics, and zero raw hex literals in component source code.
+  - Five custom signature components: `ProbabilityBar`, `ParseStrip`, `ThresholdControl` (with 150ms debounce), `UncertaintyMap` (HTML5 `<canvas>` scatter plot rendering all 3,961 S3 customers with halo uncertainty at 60fps), and `CustomerDrawer` (slide-over detail view).
+  - Six pages: `/` (Overview with headline tile & S2 calibration curve), `/ask` (Command bar, 6 example chips, interpretation sentence, ParseStrip, threshold sliders, summary metrics, sortable results table, companion distribution chart, collapsible SQL panel), `/segments` (Uncertainty map, 5 segment cards, expected size chart), `/lapse` (4 metric tiles, 10-bin reliability diagram with count histogram, comparator table), `/quality` (stepped cleaning funnel, GMM BIC grid across 4 covariance types, bootstrap ARI histogram, Hennig Jaccard bars with 0.75 reference line, NL dev summary), and `/about` (architecture diagram, timeline, topic mapping, limitations, citation).
+- **Run scripts & browser verification:**
+  - Added `run_app.bat` (production launch on `http://localhost:8000`) and `run_dev.bat` (dual development servers).
+  - Verified background uvicorn server serving `/api/health` and `/` (`web/dist/index.html`).
+  - Captured 13 high-resolution 1440×900 screenshots across light and dark modes in `docs/screenshots/`.
+- **Streamlit decommissioning:**
+  - Removed `streamlit==1.66.1` and `altair==6.3.0` from `requirements.txt`.
+  - Removed `app/streamlit_app.py` and `tests/test_app.py`.
+  - Migrated spaCy wheel pin test into `tests/test_setup.py`.
+  - Updated `CLAUDE.md`, `README.md`, `docs/explainers/phase-8.md`, and created `docs/explainers/phase-10.md` and `docs/FRONTEND_REPORT.md`.
+- **Test suite:** all 54 tests pass cleanly in `pytest`.

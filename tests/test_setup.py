@@ -40,3 +40,11 @@ def test_all_text_files_are_valid_utf8():
             continue
         content = path.read_text(encoding="utf-8")
         assert "\ufffd" not in content, f"Replacement character U+FFFD found in {path}"
+
+
+def test_requirements_pins_spacy_model_wheel_url():
+    """`requirements.txt` must pin the exact spaCy wheel URL matching the pinned spaCy version."""
+    req_text = (config.PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")
+    assert "spacy==3.8.18" in req_text
+    assert "en_core_web_sm-3.8.0-py3-none-any.whl" in req_text
+

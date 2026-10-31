@@ -35,3 +35,26 @@ This document records every human-checkpoint decision in *Probably High-Value?* 
 - **Provisional gate decision:**
   1. **Default membership method in API & UI:** `gmm` is used as the default in the web app (`GET /api/segments?method=gmm`, `GET /api/segments/map?method=gmm`) because its `12.50%` boundary share displays genuine continuous cluster-boundary uncertainty, while `bootstrap` is exposed via a one-click UI toggle as the stability check.
   2. **Overview headline:** The Overview page leads with **calibrated 90-day lapse risk** (*"When we say a customer is 70% likely to lapse, about that share really do"*, backed by S2 Brier score `0.2034`, Brier skill score `0.1672`, ROC-AUC `0.7390`, and 10-bin ECE `0.0343`), paired with segment membership confidence in `Q6`.
+
+
+---
+
+## 4. Phase 10: Frontend Architecture Migration (FastAPI + React/TS/Tailwind) (CONFIRMED)
+
+- **Status:** **CONFIRMED** (`FRONTEND.md` implemented, Streamlit removed).
+- **Motivation:** The initial Streamlit prototype (`app/streamlit_app.py`) re-executed script code on widget clicks, mixed presentation with query execution, lacked custom canvas rendering for large customer scatter plots, and could not strictly enforce design token isolation ("colour only means data").
+- **Adopted Architecture:**
+  1. **Read-only FastAPI Backend (`api/main.py`, `api/schemas.py`):**
+     - Typed Pydantic v2 schemas for all responses.
+     - Storage-level read-only connection to `app/app.duckdb` (`read_only=True`).
+     - Zero string interpolation: natural language queries map exclusively through parameterised templates `Q1`–`Q6` with strict allow-list validation.
+     - Serves static assets and production SPA bundle from `web/dist` on `http://localhost:8000`.
+  2. **Production React + TypeScript Web Application (`web/`):**
+     - UI built with Vite, Tailwind CSS, Lucide icons, Recharts, and self-hosted `@fontsource` typography (`Bricolage Grotesque`, `Figtree`, `JetBrains Mono`).
+     - Strict token-driven styling via CSS custom properties in `tokens.css`; zero raw `#...` hex literals in component source code.
+     - Okabe–Ito categorical segment palette and 4-step sequential red ramp for 90-day lapse risk.
+     - Custom HTML5 `<canvas>` Uncertainty Map rendering all 3,961 S3 customers with uncertainty halos at 60fps, hit-testing, and slide-over customer detail drawer.
+  3. **Streamlit Decommissioning:**
+     - Removed `streamlit==1.66.1` and `altair==6.3.0` from `requirements.txt`.
+     - Deleted `app/streamlit_app.py` and `tests/test_app.py`.
+     - Consolidated all test assertions into `tests/test_api.py` and `tests/test_setup.py`.

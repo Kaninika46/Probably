@@ -22,7 +22,7 @@ The diagram is in `docs/architecture.png`. The system has three parts:
 
 1. **Offline pipeline (Python, runs once):** ingest → mining engine (segmentation, lapse model) → evaluation. Entry point: `python -m src.pipeline --all`, or `--phase N`.
 2. **Data layer:** `data/retail.duckdb`. Raw rows are loaded unchanged and never edited. Cleaning and features are SQL views and tables. Mining results are written back as probabilistic tables.
-3. **Online app:** Streamlit + spaCy NL engine. It queries `app/app.duckdb`, a small export of the customer-level S3 tables, opened with `read_only=True` and **only** through the templates Q1–Q6.
+3. **Online app:** FastAPI read-only backend (`api/`) + React + TypeScript web app (`web/`) + spaCy NL engine. It queries `app/app.duckdb`, a small export of the customer-level S3 tables, opened with `read_only=True` and **only** through the templates Q1–Q6.
 
 ## 3. Data
 
@@ -34,7 +34,8 @@ The diagram is in `docs/architecture.png`. The system has three parts:
 
 ## 4. Stack
 
-Python 3.12, with: duckdb, pandas, pyarrow, openpyxl, numpy, scipy, scikit-learn, matplotlib, altair, spacy (+ `en_core_web_sm`), streamlit and pytest.
+Python 3.12, with: duckdb, pandas, pyarrow, openpyxl, numpy, scipy, scikit-learn, matplotlib, spacy (+ `en_core_web_sm`), fastapi, uvicorn, httpx and pytest.
+Frontend (`web/`): React 18, TypeScript, Vite, Tailwind CSS, Recharts, Lucide and self-hosted `@fontsource` fonts (`Bricolage Grotesque`, `Figtree`, `JetBrains Mono`).
 
 - Pin exact versions in `requirements.txt`.
 - Ask before adding any other dependency.
@@ -78,9 +79,16 @@ probably-high-value/
 ├── eval/
 │   ├── questions_dev.csv         # Claude may write and tune on these
 │   └── questions_test.csv        # written by a HUMAN only; Claude never edits it
+├── api/
+│   ├── main.py                   # Read-only FastAPI app serving /api/* and web/dist
+│   └── schemas.py                # Typed Pydantic response models
+├── web/                          # React + TypeScript + Vite + Tailwind web app
+│   ├── package.json
+│   └── src/{pages,components,charts,lib,styles}/
 ├── app/
-│   ├── streamlit_app.py
-│   └── app.duckdb                # committed; customer-level tables only
+│   └── app.duckdb                # committed; customer-level S3 tables only
+├── run_app.bat                   # Builds web/dist if needed and runs FastAPI on :8000
+├── run_dev.bat                   # Starts FastAPI --reload and Vite dev server
 ├── reports/
 │   ├── figures/
 │   └── tables/
@@ -89,6 +97,9 @@ probably-high-value/
 └── docs/
     ├── architecture.png
     ├── PROGRESS.md
+    ├── DECISIONS.md
+    ├── FRONTEND_REPORT.md
+    ├── screenshots/
     ├── references.md
     └── explainers/               # one plain-language explainer per phase
 ```
@@ -232,13 +243,17 @@ Every template takes `$method` (default `'bootstrap'`) and an optional `$country
   - hedge-threshold accuracy;
   - plus an error analysis table by failure type.
 
-### 7.11 Streamlit app
-- **Ask:** a question box with example chips. Show the interpretation sentence, the active threshold (with a slider to override it), the SQL in an expander, a results table and an Altair chart.
-- **Segments:** profiles in original units, tree rules, and hard counts vs expected sizes.
-- **Model quality:** the key evaluation tables and figures.
-- **About:** the data, the method and the limitations.
-- Connect with `duckdb.connect("app/app.duckdb", read_only=True)` and cache it.
-- **Deploy:** Streamlit Community Cloud. Pin the spaCy model wheel URL to the matching spaCy version.
+### 7.11 Web application (FastAPI read-only backend + React frontend)
+- **Architecture:** Read-only FastAPI server (`api/main.py`) exposes `/api/*` and serves the production-built React SPA (`web/dist`).
+- **Overview (`/`):** Gate headline tile, S2 calibration curve, command bar, example chips, and 5-segment summary strip.
+- **Ask (`/ask`):** Command bar (`/` focuses), 6 template chips, interpretation sentence, ParseStrip, threshold sliders (150ms debounce), summary metrics, sortable results table with inline `ProbabilityBar`s, companion chart, and collapsible SQL drawer.
+- **Segments (`/segments`):** Uncertainty map (`<canvas>` scatter plot of all 3,961 customers), 5 segment cards (median R/F/M, surrogate tree rule, max-p histogram), and hard vs expected size bar chart.
+- **Lapse risk (`/lapse`):** 4 metric tiles (Brier score, skill score +16.72%, ROC-AUC, 10-bin ECE), 10-bin reliability diagram with count histogram, model vs baselines comparison table, and top high-value at-risk customers.
+- **Model quality (`/quality`):** 6-step cleaning funnel horizontal bars, GMM BIC grid across K=2..8 and 4 covariance structures, bootstrap ARI histogram, Hennig per-segment Jaccard bars (0.75 reference line), and NL dev evaluation.
+- **About (`/about`):** System architecture diagram, S1–S3 timeline, Topic 1/2/3 mapping, limitations, and UCI citation.
+- **Customer Drawer:** Slide-over detail view showing 9-month facts, BID segment distribution, lapse risk gauge, recent clean transactions, and surrogate tree path.
+- **Database safety:** Connects exclusively with `duckdb.connect("app/app.duckdb", read_only=True)`. All user queries execute strictly through parameterised templates Q1–Q6.
+- **Run scripts:** `run_app.bat` (production on `:8000`) and `run_dev.bat` (development with hot reload).
 
 ## 8. Rules (always)
 
@@ -276,7 +291,7 @@ Every template takes `$method` (default `'bootstrap'`) and an optional `$country
 | 5 | Lapse model, S2 evaluation, S3 scoring | Reliability diagram + metrics vs baseline produced |
 | 6 | Templates Q1–Q6, `prob_queries.py`, `export_app_db.py` | Template tests pass; `app.duckdb` built and opens read-only |
 | 7 | NL engine + dev set + evaluation harness | Dev accuracy reported; injection and out-of-scope tests pass; test set run only after the human says it is frozen |
-| 8 | Streamlit app + deployment prep | App runs locally; read-only verified |
+| 8 | Web application (FastAPI + React) + deployment prep | Web app runs locally on :8000 from run_app.bat; read-only verified |
 | 9 | README (results table generated by `report_tables.py`, architecture image, Mermaid diagram, how to run), final figures, `references.md` | No placeholders anywhere; every number traceable |
 
 If time is short: Phases 0–6 plus a basic Phase 8 are the minimum complete project. Phase 7 and the stretch items come next.

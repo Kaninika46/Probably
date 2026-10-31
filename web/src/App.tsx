@@ -18,22 +18,32 @@ import { QualityPage } from "./pages/QualityPage";
 import { SegmentsPage } from "./pages/SegmentsPage";
 
 const INITIAL_QUESTION =
-  "Which German customers are probably Champions but likely to lapse?";
+  "Which customers are almost certainly Champions?";
 
 export const App: React.FC = () => {
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qTheme = params.get("theme");
+    if (qTheme === "dark" || qTheme === "light") return qTheme;
     const saved = window.localStorage.getItem("probably-theme");
     if (saved === "dark" || saved === "light") return saved;
     return "light"; // Light theme is default per FRONTEND.md section 3
   });
-  const [activeQuestion, setActiveQuestion] =
-    useState<string>(INITIAL_QUESTION);
+  const [activeQuestion, setActiveQuestion] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || INITIAL_QUESTION;
+  });
   const [recentQuestions, setRecentQuestions] = useState<string[]>([
     INITIAL_QUESTION,
+    "Which German customers are probably Champions but likely to lapse?",
   ]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
-    null
+    () => {
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get("customer");
+      return cid && !Number.isNaN(Number(cid)) ? Number(cid) : null;
+    }
   );
 
   useEffect(() => {
