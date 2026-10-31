@@ -130,6 +130,12 @@ def compute_memberships_and_stability(
     boot_probs = vote_counts / float(config.BOOTSTRAP_B)
 
     q25, q50, q75 = np.percentile(aris, [25, 50, 75])
+    ari_samples_df = pd.DataFrame({
+        "resample_id": np.arange(1, config.BOOTSTRAP_B + 1),
+        "ari": np.round(aris, 4),
+    })
+    ari_samples_df.to_csv(config.TABLES_DIR / "bootstrap_ari_samples.csv", index=False)
+
     ari_df = pd.DataFrame([{
         "covariance_type": cov_type,
         "k": k,
