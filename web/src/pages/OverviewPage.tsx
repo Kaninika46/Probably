@@ -67,6 +67,20 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     };
   }, []);
 
+  // Shared scale for the strip's mini bars: the largest hard or expected size across segments.
+  const stripScaleMax = Math.max(
+    1,
+    ...(segmentsData?.segments || []).flatMap((seg) => [seg.hard_count, seg.expected_size])
+  );
+  // Σp over all segments must equal the customer count (linearity of expectation).
+  const expectedTotal = (segmentsData?.segments || []).reduce(
+    (sum, seg) => sum + seg.expected_size,
+    0
+  );
+  const expectedSumMatches =
+    segmentsData !== null &&
+    Math.abs(expectedTotal - segmentsData.customer_count) < 0.01;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!askInput.trim()) return;
@@ -230,7 +244,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="label-caps">
-            S3 Segment Summary Strip · Hard Count vs Expected Size Σp (Method = GMM)
+            Segments today · hard count vs expected size Σp (GMM)
           </span>
           <button
             type="button"
@@ -253,58 +267,85 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {segmentsData.segments.map((seg) => (
-              <button
-                key={seg.name}
-                type="button"
-                onClick={() => navigate("/segments")}
-                className="card-surface text-left flex flex-col justify-between gap-2 transition-smooth"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2 font-display font-semibold text-base">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{
-                        backgroundColor: segmentCssColor(
-                          seg.name,
-                          meta?.segments
-                        ),
-                      }}
-                    />
-                    <span>{seg.name}</span>
-                  </span>
-                  <span
-                    className="text-code text-xs"
-                    style={{ color: "var(--muted)" }}
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {segmentsData.segments.map((seg) => {
+                const colorVar = segmentCssColor(seg.name, meta?.segments);
+                return (
+                  <button
+                    key={seg.name}
+                    type="button"
+                    onClick={() => navigate("/segments")}
+                    className="card-surface text-left flex flex-col justify-between gap-2 transition-smooth"
                   >
-                    {seg.share_of_customers_pct.toFixed(1)}%
-                  </span>
-                </div>
-                <div className="pt-1">
-                  <div className="text-small" style={{ color: "var(--muted)" }}>
-                    Hard count:{" "}
-                    <strong
-                      className="text-code"
-                      style={{ color: "var(--ink)" }}
+                    <div className="flex items-center gap-2 font-display font-semibold text-base">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: colorVar }}
+                      />
+                      <span>{seg.name}</span>
+                    </div>
+                    <div className="text-small" style={{ color: "var(--muted)" }}>
+                      {seg.share_of_customers_pct.toFixed(1)}% of customers
+                    </div>
+                    <div className="pt-1">
+                      <div className="text-small" style={{ color: "var(--muted)" }}>
+                        Hard count:{" "}
+                        <strong className="text-code" style={{ color: "var(--ink)" }}>
+                          {formatNumber(seg.hard_count)}
+                        </strong>
+                      </div>
+                      <div className="text-small" style={{ color: "var(--muted)" }}>
+                        Expected Σp:{" "}
+                        <strong className="text-code" style={{ color: "var(--ink)" }}>
+                          {formatNumber(seg.expected_size, 2)}
+                        </strong>{" "}
+                        <span className="text-xs">±{seg.std_dev.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    {/* Hard vs expected bars on one scale shared by all five cards */}
+                    <div
+                      className="flex flex-col gap-1 pt-1"
+                      role="img"
+                      aria-label={`${seg.name}: hard count ${seg.hard_count}, expected size ${seg.expected_size.toFixed(2)}`}
                     >
-                      {formatNumber(seg.hard_count)}
-                    </strong>
-                  </div>
-                  <div className="text-small" style={{ color: "var(--muted)" }}>
-                    Expected Σp:{" "}
-                    <strong
-                      className="text-code"
-                      style={{ color: "var(--ink)" }}
-                    >
-                      {formatNumber(seg.expected_size, 2)}
-                    </strong>{" "}
-                    <span className="text-xs">±{seg.std_dev.toFixed(1)}</span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                      {[
+                        { label: "Hard", value: seg.hard_count, opacity: 0.45 },
+                        { label: "Σp", value: seg.expected_size, opacity: 1 },
+                      ].map((bar) => (
+                        <div key={bar.label} className="flex items-center gap-2">
+                          <span
+                            className="text-xs w-9 shrink-0"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            {bar.label}
+                          </span>
+                          <div
+                            className="flex-1 h-2 rounded-full"
+                            style={{ backgroundColor: "var(--surface-2)" }}
+                          >
+                            <div
+                              className="h-2 rounded-full"
+                              style={{
+                                width: `${(bar.value / stripScaleMax) * 100}%`,
+                                backgroundColor: colorVar,
+                                opacity: bar.opacity,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-small" style={{ color: "var(--ink-2)" }}>
+              Expected sizes sum to {formatNumber(expectedTotal)}
+              {expectedSumMatches ? ", exactly the number of customers" : ""}. Hard
+              counts round each customer to one segment; expected sizes keep the uncertainty.
+            </p>
+          </>
         )}
       </section>
 

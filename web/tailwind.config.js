@@ -13,6 +13,10 @@ export default {
         line: "var(--line)",
         focus: "var(--focus)",
       },
+      // Projector floor: Tailwind's text-xs (12px) is used for captions, so raise it to 13px.
+      fontSize: {
+        xs: ["13px", "18px"],
+      },
       fontFamily: {
         display: ["'Bricolage Grotesque'", "sans-serif"],
         sans: ["'Figtree'", "sans-serif"],

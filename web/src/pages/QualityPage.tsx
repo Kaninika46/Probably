@@ -288,7 +288,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                     <XAxis
                       dataKey="bin"
-                      tick={{ fill: "var(--muted)", fontSize: 11 }}
+                      tick={{ fill: "var(--muted)", fontSize: 12 }}
                     />
                     <YAxis
                       tick={{ fill: "var(--muted)", fontSize: 12 }}
@@ -366,7 +366,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                         value: "Stable ≥ 0.75",
                         position: "top",
                         fill: "var(--ink)",
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                     />
                     <Bar dataKey="jaccard" radius={[0, 4, 4, 0]}>

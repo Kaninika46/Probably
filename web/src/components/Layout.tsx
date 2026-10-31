@@ -162,7 +162,7 @@ export const Layout: React.FC<LayoutProps> = ({
                           onSelectRecentQuestion(q);
                           navigate("/ask");
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded text-small truncate transition-smooth"
+                        className="w-full text-left px-2.5 py-1.5 rounded text-small transition-smooth"
                         style={{ color: "var(--ink-2)" }}
                         title={q}
                       >

@@ -1,7 +1,10 @@
 /**
  * web/src/charts/UncertaintyMap.tsx
  * Signature component #3: 3,961-point customer uncertainty scatter map (`GET /api/segments/map`).
- * - x-axis: days since last purchase (reversed, so recent buyers are on the right)
+ * - x-axis: days since last purchase on a square-root scale (reversed, so recent buyers are on
+ *   the right). Recency is right-skewed (most customers bought recently), so a linear axis
+ *   piles them against the right edge; sqrt spreads the recent region out.
+ * - x jitter: +/-0.4 days per customer, fixed by customer id, to break up whole-day stripes
  * - y-axis: 9-month monetary spend on a log10 scale
  * - colour: segment (Okabe-Ito tokens)
  * - opacity: membership confidence `max_p` mapped to alpha in [0.35, 0.95]
@@ -24,6 +27,21 @@ interface UncertaintyMapProps {
   onSelectCustomer: (customerId: number) => void;
   segmentsMeta?: SegmentColorInfo[];
   theme: "light" | "dark";
+}
+
+// Half-width of the horizontal jitter, in days. Recency is a whole number of days, which
+// draws vertical stripes; a small, fixed offset per customer breaks them up.
+const JITTER_DAYS = 0.4;
+
+/** Stable pseudo-random number in [0, 1) derived from the customer id (same on every render). */
+function seededUnit(id: number): number {
+  // Knuth multiplicative hash; Math.imul keeps the product in 32-bit integer arithmetic.
+  return (Math.imul(id, 2654435761) >>> 0) / 4294967296;
+}
+
+/** Map recency (days) to [0, 1] across the plot, square-root scaled and reversed. */
+function recencyToXNorm(days: number, maxDays: number): number {
+  return 1 - Math.sqrt(Math.max(0, days) / maxDays);
 }
 
 interface ProjectedPoint {
@@ -96,8 +114,9 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
       if (filterSegment && pt.segment !== filterSegment) continue;
       if (onlyBoundary && pt.max_p >= 0.6) continue;
 
-      // Reversed X: 275 days on left (0), 0 days on right (plotW)
-      const xNorm = (maxR - pt.recency_days) / maxR;
+      // Reversed sqrt X: oldest on the left, 0 days on the right; jitter is display-only
+      const jitteredDays = pt.recency_days + (seededUnit(pt.id) * 2 - 1) * JITTER_DAYS;
+      const xNorm = recencyToXNorm(jitteredDays, maxR);
       const logM = Math.log10(Math.max(10, pt.monetary));
       const yNorm = (logM - minL) / (maxL - minL);
 
@@ -133,7 +152,7 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
     ctx.strokeStyle = colorMap.line;
     ctx.fillStyle = colorMap.muted;
     ctx.lineWidth = 1;
-    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.font = "12px 'JetBrains Mono', monospace";
 
     // Y-axis ticks (£10, £100, £1k, £10k, £100k)
     const yTicks = [10, 100, 1000, 10000, 100000];
@@ -153,10 +172,10 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
       ctx.fillText(label, pad.left - 8, y);
     }
 
-    // X-axis ticks (reversed recency: 270d -> 0d)
-    const xTicks = [270, 210, 150, 90, 30, 1];
+    // X-axis ticks chosen to sit evenly on the square-root scale
+    const xTicks = [270, 120, 60, 30, 14, 7, 1];
     for (const days of xTicks) {
-      const xNorm = (maxRecency - days) / maxRecency;
+      const xNorm = recencyToXNorm(days, maxRecency);
       const x = pad.left + xNorm * plotW;
       ctx.beginPath();
       ctx.moveTo(x, pad.top);
@@ -169,7 +188,7 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
     }
 
     // Axis titles
-    ctx.font = "12px 'Figtree', sans-serif";
+    ctx.font = "13px 'Figtree', sans-serif";
     ctx.fillStyle = colorMap.muted;
     ctx.textAlign = "center";
     ctx.fillText(
@@ -190,7 +209,7 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
       const { px, py, raw } = item;
       const alpha = Math.max(0.35, Math.min(0.95, 0.35 + ((raw.max_p - 0.2) / 0.8) * 0.6));
       ctx.beginPath();
-      ctx.arc(px, py, raw.max_p < 0.6 ? 3.6 : 3.2, 0, Math.PI * 2);
+      ctx.arc(px, py, raw.max_p < 0.6 ? 3.2 : 2.8, 0, Math.PI * 2);
       ctx.fillStyle = colorMap[raw.segment] || colorMap.ink;
       ctx.globalAlpha = alpha;
       ctx.fill();
@@ -314,7 +333,7 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
           })}
         </div>
         <span className="text-small italic" style={{ color: "var(--muted)" }}>
-          Faded dots are customers between segments. Click any dot to inspect.
+          Faded dots are customers between segments. Recency on a square-root scale, jittered ±0.4 days. Click any dot to inspect.
         </span>
       </div>
 

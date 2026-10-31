@@ -83,7 +83,7 @@ The application is structured into six pages accessible via the persistent sideb
    - **Headline finding:** leads with calibrated 90-day lapse risk (*"When we say a customer is 70% likely to lapse, about that share really do"*), one plain-English sentence with the held-out customer count from the API, and four metric pills (Brier skill score, Brier score, ROC-AUC, 10-bin ECE).
    - **Full-width reliability diagram** stacked below the headline: labelled axes, a "perfect calibration" diagonal label, dots sized by bin count (count on hover), and a caption computed from the bins that states how the highest non-empty bin compares with the diagonal and how many customers it holds.
    - **Command bar:** 56px input with 6 quick-launch example chips.
-   - **Segment summary strip:** 5 cards showing hard counts vs probabilistic expected sizes ($\sum p$) with standard deviations.
+   - **Segment summary strip:** 5 cards showing share of customers, hard counts vs probabilistic expected sizes ($\sum p$) with standard deviations, and a hard-vs-Σp bar pair on a scale shared by all five cards, followed by a sentence (computed from the API) confirming the expected sizes sum to the customer count.
 2. **Ask (`/ask`):**
    - Natural language query interface with `/` keyboard shortcut to focus.
    - Large human-readable interpretation sentence (e.g., *"Showing customers with P(Champions) ≥ 0.95 ('almost certainly') (method = 'gmm')*").
@@ -93,7 +93,8 @@ The application is structured into six pages accessible via the persistent sideb
    - Companion distribution chart for the result set.
    - Collapsible SQL drawer displaying the parameterised query, bound parameters table, and copy button.
 3. **Segments (`/segments`):**
-   - Full-width interactive `UncertaintyMap` of all 3,961 customers.
+   - Boundary share and mean normalised entropy as two stat tiles beside a `K = 5 · provisional` title pill.
+   - Full-width interactive `UncertaintyMap` of all 3,961 customers, with recency on a reversed square-root scale and ±0.4-day seeded jitter.
    - Five segment profile cards in original units (median recency, frequency, monetary spend, surrogate tree rule, and 10-bin confidence mini-histogram).
    - Bar chart comparing K-Means hard counts, GMM hard counts, and probabilistic expected sizes.
 4. **90-Day Lapse Risk (`/lapse`):**

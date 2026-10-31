@@ -167,7 +167,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                   className="card-surface flex flex-col justify-between gap-4"
                 >
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                       <div className="inline-flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-full"
@@ -176,7 +176,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                         <h2 className="text-h2">{seg.name}</h2>
                       </div>
                       <span
-                        className="text-code text-xs px-2 py-0.5 rounded-full"
+                        className="text-code text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
                         style={{
                           backgroundColor: "var(--surface-2)",
                           color: "var(--ink-2)",
@@ -228,12 +228,13 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                     </div>
 
                     {/* Median R / F / M */}
-                    <div className="grid grid-cols-3 gap-2 mt-3 text-center">
+                    <div className="text-xs mt-3" style={{ color: "var(--muted)" }}>Median per customer</div>
+                    <div className="grid grid-cols-3 gap-2 mt-1 text-center">
                       <div
                         className="p-2 rounded"
                         style={{ backgroundColor: "var(--surface-2)" }}
                       >
-                        <div className="label-caps">Med Recency</div>
+                        <div className="label-caps">Recency</div>
                         <div className="text-code font-semibold mt-0.5">
                           {seg.median_recency_days}d
                         </div>
@@ -242,7 +243,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                         className="p-2 rounded"
                         style={{ backgroundColor: "var(--surface-2)" }}
                       >
-                        <div className="label-caps">Med Orders</div>
+                        <div className="label-caps">Orders</div>
                         <div className="text-code font-semibold mt-0.5">
                           {seg.median_frequency}
                         </div>
@@ -251,7 +252,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                         className="p-2 rounded"
                         style={{ backgroundColor: "var(--surface-2)" }}
                       >
-                        <div className="label-caps">Med Spend</div>
+                        <div className="label-caps">Spend</div>
                         <div className="text-code font-semibold mt-0.5">
                           {formatCurrency(seg.median_monetary)}
                         </div>

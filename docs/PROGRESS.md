@@ -230,3 +230,10 @@
 - **Screenshots:** recaptured over the Chrome DevTools protocol with real-time waits, which fixes the blank Recharts plots in the earlier Lapse and Segments captures.
 - `pytest`: 56 passed. `npm run build`: no TypeScript errors.
 
+### P2: chart and layout quality (done)
+- **Uncertainty map:** recency axis on a square-root scale (reversed, recent on the right), ticks at 270, 120, 60, 30, 14, 7 and 1 days. Square root was chosen over log after measuring axis occupancy on the S3 points: no fifth of the axis holds more than 33% of customers under either, but log squeezes the long Hibernating tail into 6% of the width. Horizontal jitter of ±0.4 days, fixed per customer by a hash of the customer id, breaks up whole-day stripes; the caption says so. Dot radius reduced (3.2/2.8px from 3.6/3.2px).
+- **Overview segment strip:** each card says "% of customers" and has a Hard vs Σp bar pair drawn on one scale shared by all five cards. A line under the strip, computed from `/api/segments`, reads "Expected sizes sum to 3,961, exactly the number of customers…"; the word "exactly" appears only if the sum matches the customer count to within 0.01.
+- **Typography:** Tailwind `text-xs` raised from 12px to 13px (captions), label caps from 11px to 12px, uncertainty-map ticks from 11px to 12px, Quality-page chart ticks from 11px to 12px. Sidebar recent questions now wrap in full instead of being cut off with an ellipsis. Segment-card headers wrap their Jaccard/AvePP pill onto a new line instead of squeezing, and the median tiles read "Recency / Orders / Spend" under a "Median per customer" caption so the labels no longer break mid-phrase.
+- Screenshots recaptured at 1440×900: 7 light (including the customer drawer) and 6 dark.
+- `pytest`: 56 passed. `npm run build`: no TypeScript errors. `/api/health` returned `{"status":"ok"}`.
+
