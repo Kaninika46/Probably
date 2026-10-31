@@ -14,6 +14,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ReferenceLine,
@@ -30,6 +31,7 @@ import {
   formatNumber,
   segmentCssColor,
 } from "../lib/api";
+import { useChartTooltip } from "../lib/useChartTooltip";
 import { ProbabilityBar } from "../components/ProbabilityBar";
 
 interface LapsePageProps {
@@ -41,6 +43,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
   meta,
   onSelectCustomer,
 }) => {
+  const tooltip = useChartTooltip();
   const [data, setData] = useState<LapseResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +73,10 @@ export const LapsePage: React.FC<LapsePageProps> = ({
   const primaryS2 = data?.s2_metrics.find(
     (m) => m.model === "logistic_calibrated"
   );
+  const twoBinS2 = data?.s2_metrics.find(
+    (m) => m.model === "two_bin_recency_90d"
+  );
+  const highValue = data?.high_value_summary;
 
   // Merge 10 reliability bins across the 3 models for the reliability chart
   const reliabilityChartData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((binIdx) => {
@@ -199,7 +206,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
             aria-label="Reliability diagram comparing predicted lapse probability against observed lapse frequency on held-out S2"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={reliabilityChartData}>
+              <LineChart data={reliabilityChartData} {...tooltip.bind("reliability")}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                 <XAxis
                   dataKey="binLabel"
@@ -223,16 +230,19 @@ export const LapsePage: React.FC<LapsePageProps> = ({
                     fontSize: 12,
                   }}
                 />
-                <Tooltip
+                <Tooltip active={tooltip.activeFor("reliability")}
                   contentStyle={{
                     backgroundColor: "var(--surface)",
                     borderColor: "var(--line)",
                     color: "var(--ink)",
                   }}
                 />
+                <Legend wrapperStyle={{ fontSize: 13, color: "var(--ink-2)" }} />
                 <Line
                   type="monotone"
                   dataKey="Ideal"
+                  name="Perfect calibration"
+                  legendType="plainline"
                   stroke="var(--muted)"
                   strokeDasharray="4 4"
                   dot={false}
@@ -240,6 +250,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
                 <Line
                   type="monotone"
                   dataKey="Calibrated Logistic (primary)"
+                  legendType="plainline"
                   stroke="var(--lapse-3)"
                   strokeWidth={2.5}
                   connectNulls
@@ -247,6 +258,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
                 <Line
                   type="monotone"
                   dataKey="Calibrated Depth-4 Tree"
+                  legendType="plainline"
                   stroke="var(--ink-2)"
                   strokeWidth={1.75}
                   connectNulls
@@ -254,6 +266,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
                 <Line
                   type="monotone"
                   dataKey="Two-Bin Rule (recency > 90d)"
+                  legendType="plainline"
                   stroke="var(--muted)"
                   strokeWidth={1.5}
                   connectNulls
@@ -273,14 +286,14 @@ export const LapsePage: React.FC<LapsePageProps> = ({
               aria-label="Histogram of S2 customer counts across the 10 predicted probability bins"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={reliabilityChartData}>
+                <BarChart data={reliabilityChartData} {...tooltip.bind("bin-counts")}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                   <XAxis
                     dataKey="binLabel"
                     tick={{ fill: "var(--muted)", fontSize: 12 }}
                   />
                   <YAxis tick={{ fill: "var(--muted)", fontSize: 12 }} />
-                  <Tooltip
+                  <Tooltip active={tooltip.activeFor("bin-counts")}
                     contentStyle={{
                       backgroundColor: "var(--surface)",
                       borderColor: "var(--line)",
@@ -376,6 +389,18 @@ export const LapsePage: React.FC<LapsePageProps> = ({
               </tbody>
             </table>
           </div>
+          {primaryS2 && twoBinS2 && (
+            <p className="text-small" style={{ color: "var(--ink-2)" }}>
+              On held-out S2 the two-bin recency rule has a lower ECE (
+              {Number(twoBinS2.ece_10_bins).toFixed(4)}) than the calibrated logistic model (
+              {Number(primaryS2.ece_10_bins).toFixed(4)}) but a much lower ROC-AUC (
+              {Number(twoBinS2.roc_auc).toFixed(4)} vs {Number(primaryS2.roc_auc).toFixed(4)}).
+              Calibration (do predicted rates match observed rates?) and discrimination (are
+              lapsers ranked above buyers?) are different properties. The Brier score combines
+              both, and there the logistic model is better ({Number(primaryS2.brier_score).toFixed(4)}{" "}
+              vs {Number(twoBinS2.brier_score).toFixed(4)}; lower is better).
+            </p>
+          )}
         </section>
       )}
 
@@ -384,10 +409,22 @@ export const LapsePage: React.FC<LapsePageProps> = ({
         <section className="card-surface flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="label-caps">Actionable Priority Watchlist (Snapshot S3)</span>
+              <span className="label-caps">Watchlist · snapshot S3</span>
               <h2 className="text-h2 mt-0.5">
-                Top 20 high-monetary customers with the highest 90-day lapse risk
+                {highValue && highValue.max_p_lapse_90d <= 0.5
+                  ? "Even the riskiest big spenders are below 50% lapse risk"
+                  : "Top-quartile spenders with the highest 90-day lapse risk"}
               </h2>
+              {highValue && (
+                <p className="text-small mt-1" style={{ color: "var(--ink-2)" }}>
+                  {highValue.max_p_lapse_90d <= 0.5
+                    ? "No high-spending customer exceeds 50% lapse risk, and that is itself the finding. "
+                    : "Some high-spending customers exceed 50% lapse risk. "}
+                  Across all {formatNumber(highValue.customer_count)} customers in the top quarter
+                  by 9-month spend ({formatCurrency(highValue.min_monetary)} or more), the highest
+                  predicted 90-day lapse probability is {highValue.max_p_lapse_90d.toFixed(2)}.
+                </p>
+              )}
             </div>
             <span className="text-small" style={{ color: "var(--muted)" }}>
               Click any customer to inspect in drawer

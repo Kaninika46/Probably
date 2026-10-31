@@ -1021,8 +1021,32 @@ def get_lapse() -> schemas.LapseResponse:
             LIMIT 20
             """
         ).df()
+        # Describe the whole top-quartile pool so the UI can state its maximum lapse risk
+        pool_row = con.execute(
+            """
+            WITH q75 AS (
+                SELECT QUANTILE_CONT(monetary, 0.75) AS p75_monetary
+                FROM customer_features
+                WHERE snapshot = 'S3'
+            )
+            SELECT
+                ROUND(MAX(q75.p75_monetary), 2) AS min_monetary,
+                COUNT(*) AS customer_count,
+                ROUND(MAX(lr.p_lapse_90d), 4) AS max_p_lapse_90d
+            FROM customer_features AS cf
+            JOIN lapse_risk AS lr ON lr.customer_id = cf.customer_id AND lr.snapshot = 'S3'
+            CROSS JOIN q75
+            WHERE cf.snapshot = 'S3'
+              AND cf.monetary >= q75.p75_monetary
+            """
+        ).fetchone()
     finally:
         con.close()
+    high_value_summary = {
+        "min_monetary": float(pool_row[0]),
+        "customer_count": int(pool_row[1]),
+        "max_p_lapse_90d": float(pool_row[2]),
+    }
 
     return schemas.LapseResponse(
         s2_metrics=_clean_records(s2_df),
@@ -1031,6 +1055,7 @@ def get_lapse() -> schemas.LapseResponse:
         baseline_s1_rates=_clean_records(base_rates_df)[0],
         s3_by_segment=_clean_records(s3_seg_df),
         high_value_at_risk=_clean_records(high_val_df),
+        high_value_summary=high_value_summary,
     )
 
 

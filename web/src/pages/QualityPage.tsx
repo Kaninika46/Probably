@@ -16,6 +16,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Legend,
   Line,
   LineChart,
   ReferenceLine,
@@ -32,12 +33,14 @@ import {
   formatNumber,
   segmentCssColor,
 } from "../lib/api";
+import { useChartTooltip } from "../lib/useChartTooltip";
 
 interface QualityPageProps {
   meta: MetaResponse | null;
 }
 
 export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
+  const tooltip = useChartTooltip();
   const [data, setData] = useState<QualityResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -221,41 +224,46 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                 aria-label="Line chart of GMM BIC scores across K=2 to K=8 for spherical, tied, diag, and full covariance types"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={bicChartData}>
+                  <LineChart data={bicChartData} {...tooltip.bind("bic")}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                     <XAxis
                       dataKey="k"
                       tick={{ fill: "var(--muted)", fontSize: 12 }}
                     />
                     <YAxis tick={{ fill: "var(--muted)", fontSize: 12 }} />
-                    <Tooltip
+                    <Tooltip active={tooltip.activeFor("bic")}
                       contentStyle={{
                         backgroundColor: "var(--surface)",
                         borderColor: "var(--line)",
                         color: "var(--ink)",
                       }}
                     />
+                    <Legend wrapperStyle={{ fontSize: 13, color: "var(--ink-2)" }} />
                     <Line
                       type="monotone"
                       dataKey="spherical"
+                      legendType="plainline"
                       stroke="var(--ink)"
                       strokeWidth={2.5}
                     />
                     <Line
                       type="monotone"
                       dataKey="tied"
+                      legendType="plainline"
                       stroke="var(--ink-2)"
                       strokeWidth={2}
                     />
                     <Line
                       type="monotone"
                       dataKey="diag"
+                      legendType="plainline"
                       stroke="var(--muted)"
                       strokeDasharray="4 4"
                     />
                     <Line
                       type="monotone"
                       dataKey="full"
+                      legendType="plainline"
                       stroke="var(--muted)"
                       strokeDasharray="2 2"
                     />
@@ -284,7 +292,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                 aria-label="Histogram of bootstrap Adjusted Rand Index across 100 resamples"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={ariHistData}>
+                  <BarChart data={ariHistData} {...tooltip.bind("ari")}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                     <XAxis
                       dataKey="bin"
@@ -300,7 +308,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                         fontSize: 12,
                       }}
                     />
-                    <Tooltip
+                    <Tooltip active={tooltip.activeFor("ari")}
                       contentStyle={{
                         backgroundColor: "var(--surface)",
                         borderColor: "var(--line)",
@@ -338,7 +346,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                 aria-label="Bar chart of mean bootstrap Jaccard similarity per segment with 0.75 reference line"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={jaccardData} layout="vertical">
+                  <BarChart data={jaccardData} layout="vertical" {...tooltip.bind("jaccard")}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                     <XAxis
                       type="number"
@@ -351,7 +359,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ meta }) => {
                       width={95}
                       tick={{ fill: "var(--ink)", fontSize: 12 }}
                     />
-                    <Tooltip
+                    <Tooltip active={tooltip.activeFor("jaccard")}
                       contentStyle={{
                         backgroundColor: "var(--surface)",
                         borderColor: "var(--line)",

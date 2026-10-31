@@ -17,6 +17,10 @@ import { OverviewPage } from "./pages/OverviewPage";
 import { QualityPage } from "./pages/QualityPage";
 import { SegmentsPage } from "./pages/SegmentsPage";
 
+// Bumped from "probably-theme": the pre-P1 app wrote that key on every visit, so a stored
+// value there was not necessarily a choice the user made. Only explicit toggles write this key.
+const THEME_STORAGE_KEY = "probably-theme-choice";
+
 const INITIAL_QUESTION =
   "Which customers are almost certainly Champions?";
 
@@ -28,7 +32,7 @@ export const App: React.FC = () => {
     const qTheme = params.get("theme");
     if (qTheme === "dark" || qTheme === "light") return qTheme;
     try {
-      const saved = window.localStorage.getItem("probably-theme");
+      const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
       if (saved === "dark" || saved === "light") return saved;
     } catch {
       // Storage unavailable: fall through to the light default
@@ -62,7 +66,7 @@ export const App: React.FC = () => {
     setTheme((prev) => {
       const next = prev === "light" ? "dark" : "light";
       try {
-        window.localStorage.setItem("probably-theme", next);
+        window.localStorage.setItem(THEME_STORAGE_KEY, next);
       } catch {
         // Storage can be blocked (private window); the toggle still works for this visit
       }

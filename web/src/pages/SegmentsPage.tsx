@@ -12,6 +12,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -26,6 +27,7 @@ import {
   formatNumber,
   segmentCssColor,
 } from "../lib/api";
+import { useChartTooltip } from "../lib/useChartTooltip";
 import { UncertaintyMap } from "../charts/UncertaintyMap";
 
 interface SegmentsPageProps {
@@ -39,6 +41,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
   theme,
   onSelectCustomer,
 }) => {
+  const tooltip = useChartTooltip();
   const [method, setMethod] = useState<"gmm" | "bootstrap">("gmm");
   const [segmentsData, setSegmentsData] = useState<SegmentsResponse | null>(
     null
@@ -333,7 +336,7 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
             aria-label="Bar chart comparing K-Means hard count, GMM hard count, and probabilistic expected size per segment"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sizeComparisonData}>
+              <BarChart data={sizeComparisonData} {...tooltip.bind("sizes")}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                 <XAxis
                   dataKey="name"
@@ -349,13 +352,14 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                     fontSize: 12,
                   }}
                 />
-                <Tooltip
+                <Tooltip active={tooltip.activeFor("sizes")}
                   contentStyle={{
                     backgroundColor: "var(--surface)",
                     borderColor: "var(--line)",
                     color: "var(--ink)",
                   }}
                 />
+                <Legend wrapperStyle={{ fontSize: 13, color: "var(--ink-2)" }} />
                 <Bar
                   dataKey="K-Means hard count"
                   fill="var(--muted)"

@@ -41,6 +41,7 @@ import {
   formatCurrency,
   formatNumber,
 } from "../lib/api";
+import { useChartTooltip } from "../lib/useChartTooltip";
 import { ParseStrip } from "../components/ParseStrip";
 import { ProbabilityBar } from "../components/ProbabilityBar";
 import { ThresholdControl } from "../components/ThresholdControl";
@@ -58,6 +59,7 @@ export const AskPage: React.FC<AskPageProps> = ({
   onAskQuestion,
   onSelectCustomer,
 }) => {
+  const tooltip = useChartTooltip();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputText, setInputText] = useState<string>(activeQuestion);
   const [response, setResponse] = useState<AskResponse | null>(null);
@@ -610,14 +612,14 @@ export const AskPage: React.FC<AskPageProps> = ({
                 aria-label="Bar chart summarizing the query result distribution"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
+                  <BarChart data={chartData} {...tooltip.bind("result")}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                     <XAxis
                       dataKey="name"
                       tick={{ fill: "var(--muted)", fontSize: 12 }}
                     />
                     <YAxis tick={{ fill: "var(--muted)", fontSize: 12 }} />
-                    <Tooltip
+                    <Tooltip active={tooltip.activeFor("result")}
                       contentStyle={{
                         backgroundColor: "var(--surface)",
                         borderColor: "var(--line)",

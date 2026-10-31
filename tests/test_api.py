@@ -184,3 +184,18 @@ def test_api_meta_matches_the_fields_the_frontend_reads():
     for field in _required_ts_fields("HeadlineInfo"):
         assert meta["headline"].get(field) is not None, f"/api/meta headline is missing {field}"
 
+
+
+def test_lapse_watchlist_summary_and_comparison_inputs_are_present():
+    """The watchlist caption and the calibration-vs-discrimination caption read these fields."""
+    lapse = client.get("/api/lapse").json()
+    summary = lapse["high_value_summary"]
+    assert summary["customer_count"] > 0
+    assert summary["min_monetary"] > 0
+    assert 0.0 <= summary["max_p_lapse_90d"] <= 1.0
+    # The 20 rows shown are the top of the same pool, so the first row carries the pool maximum
+    assert lapse["high_value_at_risk"][0]["p_lapse_90d"] == summary["max_p_lapse_90d"]
+    models = {row["model"]: row for row in lapse["s2_metrics"]}
+    for model in ("logistic_calibrated", "two_bin_recency_90d"):
+        for metric in ("ece_10_bins", "roc_auc", "brier_score"):
+            assert models[model][metric] is not None, (model, metric)

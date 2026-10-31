@@ -188,6 +188,11 @@ export interface LapseResponse {
   baseline_s1_rates: Record<string, number>;
   s3_by_segment: Record<string, number | string>[];
   high_value_at_risk: Record<string, number | string>[];
+  high_value_summary: {
+    min_monetary: number;
+    customer_count: number;
+    max_p_lapse_90d: number;
+  };
 }
 
 export interface QualityResponse {

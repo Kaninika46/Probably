@@ -206,6 +206,8 @@ class LapseResponse(BaseModel):
     baseline_s1_rates: dict[str, Any]
     s3_by_segment: list[dict[str, Any]]
     high_value_at_risk: list[dict[str, Any]]
+    # Pool behind the watchlist: S3 customers at or above the 75th percentile of monetary
+    high_value_summary: dict[str, Any]
 
 
 class QualityResponse(BaseModel):
