@@ -44,13 +44,13 @@ flowchart LR
 
     subgraph Offline["1. Offline KDD & Mining Pipeline (src/pipeline.py)"]
 
-        Raw["UCI Online Retail II\n1,067,371 raw rows"] --> Clean["SQL Cleaning Funnel\nsql/02_clean_views.sql\n776,596 customer rows"]
+        Raw["UCI Online Retail II<br/>1,067,371 raw rows"] --> Clean["SQL Cleaning Funnel<br/>sql/02_clean_views.sql<br/>776,596 customer rows"]
 
-        Clean --> Feat["Temporal Snapshots\nS1 (3,256) | S2 (3,247) | S3 (3,961)\nsql/03_features.sql"]
+        Clean --> Feat["Temporal Snapshots<br/>S1 (3,256) | S2 (3,247) | S3 (3,961)<br/>sql/03_features.sql"]
 
-        Feat --> Seg["S3 Spherical GMM (K=5)\n+ B=100 Bootstrap\nsrc/segment.py & membership.py"]
+        Feat --> Seg["S3 Spherical GMM (K=5)<br/>+ B=100 Bootstrap<br/>src/segment.py & membership.py"]
 
-        Feat --> Lapse["S1 Calibrated Logistic\n-> S2 Test -> S3 Scoring\nsrc/lapse.py"]
+        Feat --> Lapse["S1 Calibrated Logistic<br/>-> S2 Test -> S3 Scoring<br/>src/lapse.py"]
 
     end
 
@@ -58,11 +58,11 @@ flowchart LR
 
     subgraph DB["2. Probabilistic Database (DuckDB)"]
 
-        Seg --> BID["segment_membership (BID)\nBlock key: (customer_id, snapshot, method)\nSUM(p) = 1.0 per block"]
+        Seg --> BID["segment_membership (BID)<br/>Block key: (customer_id, snapshot, method)<br/>SUM(p) = 1.0 per block"]
 
-        Lapse --> TI["lapse_risk (Tuple-Independent)\np_lapse_90d per customer"]
+        Lapse --> TI["lapse_risk (Tuple-Independent)<br/>p_lapse_90d per customer"]
 
-        BID --> Export["app/app.duckdb\nS3 Customer Tables Only\nOpened with read_only=True"]
+        BID --> Export["app/app.duckdb<br/>S3 Customer Tables Only<br/>Opened with read_only=True"]
 
         TI --> Export
 
@@ -72,15 +72,15 @@ flowchart LR
 
     subgraph Online["3. Online Web App & Read-Only API (api/ & web/)"]
 
-        UserQ["Plain-English Question\ne.g. 'Which customers in Germany are\nprobably Champions and likely to lapse?'"] --> API["FastAPI (api/main.py)\nRead-only duckdb connection\nTyped Pydantic Schemas"]
+        UserQ["Plain-English Question<br/>e.g. 'Which customers in Germany are<br/>probably Champions and likely to lapse?'"] --> API["FastAPI (api/main.py)<br/>Read-only duckdb connection<br/>Typed Pydantic Schemas"]
 
-        API --> Spacy["spaCy + Hedge Lexicon\nIPCC AR5 & Sherman Kent Scales\nsrc/nl/parser.py"]
+        API --> Spacy["spaCy + Hedge Lexicon<br/>IPCC AR5 & Sherman Kent Scales<br/>src/nl/parser.py"]
 
-        Spacy --> Tpl["Parameterised SQL Templates\nQ1-Q6 (sql/templates/)\nZero Raw Text Interpolation"]
+        Spacy --> Tpl["Parameterised SQL Templates<br/>Q1-Q6 (sql/templates/)<br/>Zero Raw Text Interpolation"]
 
         Export --> Tpl
 
-        Tpl --> React["React + TypeScript SPA (web/)\nTokens, Uncertainty Map, Recharts,\nProbability Bars & Customer Drawer"]
+        Tpl --> React["React + TypeScript SPA (web/)<br/>Tokens, Uncertainty Map, Recharts,<br/>Probability Bars & Customer Drawer"]
 
     end
 
