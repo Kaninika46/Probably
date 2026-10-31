@@ -170,27 +170,28 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                   className="card-surface flex flex-col justify-between gap-4"
                 >
                   <div>
-                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                      <div className="inline-flex items-center gap-2">
-                        <span
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: colorVar }}
-                        />
-                        <h2 className="text-h2">{seg.name}</h2>
-                      </div>
+                    {/* Name, badge and description each get a fixed slot so every
+                        section below starts at the same height in all five cards */}
+                    <div className="flex items-center gap-2">
                       <span
-                        className="text-code text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
-                        style={{
-                          backgroundColor: "var(--surface-2)",
-                          color: "var(--ink-2)",
-                        }}
-                      >
-                        Jaccard {seg.jaccard_mean.toFixed(2)} · AvePP{" "}
-                        {seg.ave_pp.toFixed(2)}
-                      </span>
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: colorVar }}
+                      />
+                      <h2 className="text-h2">{seg.name}</h2>
                     </div>
+                    <span
+                      className="inline-block mt-1.5 text-code text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
+                      style={{
+                        backgroundColor: "var(--surface-2)",
+                        color: "var(--ink-2)",
+                      }}
+                    >
+                      Jaccard {seg.jaccard_mean.toFixed(2)} · AvePP{" "}
+                      {seg.ave_pp.toFixed(2)}
+                    </span>
+                    {/* min-height = two lines of text-small (18px line height) */}
                     <p
-                      className="text-small mt-1"
+                      className="text-small mt-1.5 min-h-[36px]"
                       style={{ color: "var(--muted)" }}
                     >
                       {seg.description}
@@ -265,9 +266,13 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
 
                   {/* Mini Histogram of max-p */}
                   <div>
-                    <div className="flex justify-between text-xs mb-1" style={{ color: "var(--muted)" }}>
-                      <span>Confidence distribution (max p)</span>
-                      <span className="text-code">0.20 → 1.00</span>
+                    <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>
+                      <div>Confidence distribution (max p)</div>
+                      <div>
+                        Tallest bar ={" "}
+                        <span className="text-code">{formatNumber(maxHistCount)}</span>{" "}
+                        customers · hover a bar for its count
+                      </div>
                     </div>
                     <div
                       className="h-12 flex items-end gap-1 pt-2 px-2 rounded"
@@ -293,6 +298,15 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
                           />
                         );
                       })}
+                    </div>
+                    <div
+                      className="flex justify-between text-xs text-code mt-0.5 px-2"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      <span>p = {seg.max_p_histogram[0]?.bin_lower.toFixed(2)}</span>
+                      <span>
+                        {seg.max_p_histogram[seg.max_p_histogram.length - 1]?.bin_upper.toFixed(2)}
+                      </span>
                     </div>
 
                     {/* Decision-tree surrogate rule */}
