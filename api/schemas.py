@@ -34,6 +34,7 @@ class HeadlineInfo(BaseModel):
     brier_skill_score: float
     roc_auc: float
     ece_10_bins: float
+    s2_customer_count: int
     gmm_boundary_share_pct: float
     bootstrap_boundary_share_pct: float
 

@@ -11,7 +11,7 @@ The purpose of this phase was to replace the initial Streamlit script with a pro
 
 The web interface embodies the core principle **"colour only means data"**:
 1. **Neutral chrome:** all layout surfaces, borders, text, and active states use neutral slate tones (`--bg`, `--surface`, `--ink`, `--line`), ensuring that color is never used as mere decoration.
-2. **Okabe–Ito categorical palette:** customer segments are displayed exclusively with the five color-blind-safe Okabe–Ito colors (`Champions` `#009E73`, `Loyal` `#0072B2`, `New` `#CC79A7`, `At-Risk` `#E69F00`, `Hibernating` `#7A7F87`).
+2. **Okabe–Ito categorical palette:** customer segments are displayed exclusively with the five color-blind-safe Okabe–Ito hues. In light mode (the default) four of them are darkened slightly so each reaches at least 3:1 contrast on white and faded low-confidence dots stay visible on a projector (`Champions` `#00876A`, `Loyal` `#0072B2`, `New` `#B5608F`, `At-Risk` `#B07800`, `Hibernating` `#666B73`); dark mode keeps the lighter variants.
 3. **Sequential red ramp:** 90-day lapse risk is represented using a distinct four-level monochromatic red scale (`--lapse-1` to `--lapse-4`), completely separated from categorical segment hues.
 4. **Self-hosted offline typography:** `@fontsource/bricolage-grotesque` (editorial headings), `@fontsource/figtree` (interface copy), and `@fontsource/jetbrains-mono` (tabular figures and code).
 5. **Decoupled architecture:** all data modeling, natural language parsing, and probabilistic SQL logic execute inside the Python backend (`src/`, `api/main.py`), while the React frontend (`web/`) serves purely as a responsive rendering layer.
@@ -80,8 +80,8 @@ The frontend is a single-page application built with React 18, TypeScript, Vite,
 The application is structured into six pages accessible via the persistent sidebar navigation:
 
 1. **Overview (`/`):**
-   - **Gate decision headline:** leads with calibrated 90-day lapse risk (*"When we say a customer is 70% likely to lapse, about that share really do"*).
-   - **Diagnostic mini-chart:** 10-bin reliability curve on held-out S2 (`ECE = 0.0343`, `Brier = 0.2034`, `Brier skill score = +16.72%`).
+   - **Headline finding:** leads with calibrated 90-day lapse risk (*"When we say a customer is 70% likely to lapse, about that share really do"*), one plain-English sentence with the held-out customer count from the API, and four metric pills (Brier skill score, Brier score, ROC-AUC, 10-bin ECE).
+   - **Full-width reliability diagram** stacked below the headline: labelled axes, a "perfect calibration" diagonal label, dots sized by bin count (count on hover), and a caption computed from the bins that states how the highest non-empty bin compares with the diagonal and how many customers it holds.
    - **Command bar:** 56px input with 6 quick-launch example chips.
    - **Segment summary strip:** 5 cards showing hard counts vs probabilistic expected sizes ($\sum p$) with standard deviations.
 2. **Ask (`/ask`):**
@@ -145,11 +145,11 @@ The application requires **Python 3.12** and **Node.js**:
 
 ## 6. Screenshots & Visual Verification
 
-All screenshots were captured at **1440×900** resolution using headless Google Chrome (`--headless=new --window-size=1440,900`) and verified for typographic hierarchy, contrast, and layout integrity:
+All screenshots were captured at **1440×900** with headless Google Chrome driven over the DevTools protocol, waiting five real seconds per page so data loads and Recharts animations finish (Chrome's `--virtual-time-budget` flag leaves Recharts charts blank, which is why earlier Lapse and Segments screenshots showed empty plots). Each was inspected for overflow, clipped text, overlaps and contrast:
 
 | Deliverable | File Path | Resolution | Description & Visual Verification |
 |---|---|---|---|
-| **Overview (Light)** | `docs/screenshots/overview_light.png` | 1440×900 | Gate decision headline, S2 calibration curve, command bar with 6 chips, 5-segment summary strip. |
+| **Overview (Light)** | `docs/screenshots/overview_light.png` | 1440×900 | Headline finding, metric pills and the full-width S2 reliability diagram with its top-bin caption. |
 | **Overview (Dark)** | `docs/screenshots/overview_dark.png` | 1440×900 | High-contrast dark theme verification; neutral slate card surfaces, readable tabular text. |
 | **Ask (Light)** | `docs/screenshots/ask_light.png` | 1440×900 | Q1 query execution ("Which customers are almost certainly Champions?"), interpretation sentence, ParseStrip tokens, threshold slider, summary tiles (148 matched, 146.66 expected, £2,760,590 expected revenue), sortable table with ProbabilityBars. |
 | **Ask (Dark)** | `docs/screenshots/ask_dark.png` | 1440×900 | Dark theme of the Ask page showing Q6 German customers query, dual threshold controls, and SQL panel. |

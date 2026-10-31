@@ -26,8 +26,12 @@ export const App: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const qTheme = params.get("theme");
     if (qTheme === "dark" || qTheme === "light") return qTheme;
-    const saved = window.localStorage.getItem("probably-theme");
-    if (saved === "dark" || saved === "light") return saved;
+    try {
+      const saved = window.localStorage.getItem("probably-theme");
+      if (saved === "dark" || saved === "light") return saved;
+    } catch {
+      // Storage unavailable: fall through to the light default
+    }
     return "light"; // Light theme is default per FRONTEND.md section 3
   });
   const [activeQuestion, setActiveQuestion] = useState<string>(() => {
@@ -46,10 +50,24 @@ export const App: React.FC = () => {
     }
   );
 
+  // Apply the theme, but only persist it once the user has explicitly toggled.
+  // A first-time visitor therefore always lands on light (projector-friendly),
+  // whatever their OS colour-scheme preference is.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    window.localStorage.setItem("probably-theme", theme);
   }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      try {
+        window.localStorage.setItem("probably-theme", next);
+      } catch {
+        // Storage can be blocked (private window); the toggle still works for this visit
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     api
@@ -77,9 +95,7 @@ export const App: React.FC = () => {
       <Layout
         meta={meta}
         theme={theme}
-        onToggleTheme={() =>
-          setTheme((prev) => (prev === "light" ? "dark" : "light"))
-        }
+        onToggleTheme={toggleTheme}
         recentQuestions={recentQuestions}
         onSelectRecentQuestion={handleAskQuestion}
       >

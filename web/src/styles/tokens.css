@@ -18,12 +18,14 @@
   --line: #E2E5EA;
   --focus: #12161C;
 
-  /* Segment colours (Okabe-Ito, colour-blind safe) */
-  --seg-champions: #009E73;
+  /* Segment colours (Okabe-Ito hues, colour-blind safe). Darkened slightly from the
+   * textbook values (#009E73, #CC79A7, #E69F00, #7A7F87) so every hue reaches at least
+   * 3:1 contrast on white and faded low-confidence dots stay visible on a projector. */
+  --seg-champions: #00876A;
   --seg-loyal: #0072B2;
-  --seg-new: #CC79A7;
-  --seg-at-risk: #E69F00;
-  --seg-hibernating: #7A7F87;
+  --seg-new: #B5608F;
+  --seg-at-risk: #B07800;
+  --seg-hibernating: #666B73;
 
   /* Sequential lapse-risk ramp (p = 0 to p = 1) */
   --lapse-1: #FDE8E7;

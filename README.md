@@ -104,7 +104,7 @@ The application design follows the strict principle **"colour only means data"**
 
 |---|---|---|
 
-| **1. Overview** (`/`) · Gate decision headline, S2 calibration curve, command bar & segment summary strip | ![Overview Light](docs/screenshots/overview_light.png) | ![Overview Dark](docs/screenshots/overview_dark.png) |
+| **1. Overview** (`/`) · Headline finding, full-width S2 reliability diagram, command bar & segment summary strip | ![Overview Light](docs/screenshots/overview_light.png) | ![Overview Dark](docs/screenshots/overview_dark.png) |
 
 | **2. Ask (NL → SQL)** (`/ask`) · Interpretation sentence, ParseStrip tokens, threshold slider, matched summary & sortable results | ![Ask Light](docs/screenshots/ask_light.png) | ![Ask Dark](docs/screenshots/ask_dark.png) |
 

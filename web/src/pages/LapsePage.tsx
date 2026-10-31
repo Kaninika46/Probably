@@ -115,10 +115,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <span className="label-caps">
-          Topic 3 (Supervised Classification) × Topic 1 (Tuple-Independent Table `lapse_risk`)
-        </span>
-        <h1 className="text-h1 mt-1">
+        <h1 className="text-h1">
           90-Day Lapse Risk · Calibrated on S1, Verified Once on Held-Out S2
         </h1>
         <p className="text-small mt-1" style={{ color: "var(--muted)" }}>
@@ -219,7 +216,7 @@ export const LapsePage: React.FC<LapsePageProps> = ({
                   domain={[0, 1]}
                   tick={{ fill: "var(--muted)", fontSize: 12 }}
                   label={{
-                    value: "Observed 90d lapse rate",
+                    value: "Observed lapse rate",
                     angle: -90,
                     position: "insideLeft",
                     fill: "var(--muted)",

@@ -37,9 +37,11 @@ app.add_middleware(
 
 SEGMENT_ORDER = ["Champions", "Loyal", "At-Risk", "New", "Hibernating"]
 
+# Okabe-Ito hues. The light values are slightly darker than the textbook palette so
+# low-opacity (uncertain) dots on the white uncertainty map stay visible on a projector.
 SEGMENT_COLORS: dict[str, dict[str, str]] = {
     "Champions": {
-        "light": "#009E73",
+        "light": "#00876A",
         "dark": "#2BC48F",
         "css_var": "--seg-champions",
     },
@@ -49,17 +51,17 @@ SEGMENT_COLORS: dict[str, dict[str, str]] = {
         "css_var": "--seg-loyal",
     },
     "New": {
-        "light": "#CC79A7",
+        "light": "#B5608F",
         "dark": "#E59AC4",
         "css_var": "--seg-new",
     },
     "At-Risk": {
-        "light": "#E69F00",
+        "light": "#B07800",
         "dark": "#F2B33D",
         "css_var": "--seg-at-risk",
     },
     "Hibernating": {
-        "light": "#7A7F87",
+        "light": "#666B73",
         "dark": "#A3A9B1",
         "css_var": "--seg-hibernating",
     },
@@ -425,16 +427,16 @@ def get_meta() -> schemas.MetaResponse:
     headline = schemas.HeadlineInfo(
         focus="lapse_risk",
         title="When we say a customer is 70% likely to lapse, about that share really do.",
+        # One plain-English sentence; the metric pills on the Overview carry the numbers.
         subtitle=(
-            f"Calibrated 90-day lapse model verified on held-out S2 (3,247 customers): "
-            f"Brier score {float(prim_s2['brier_score']):.4f}, Brier skill score +{100 * float(prim_s2['brier_skill_score']):.1f}% vs base rate, "
-            f"ROC-AUC {float(prim_s2['roc_auc']):.4f}, 10-bin calibration error {float(prim_s2['ece_10_bins']):.4f}. "
-            f"Paired with soft GMM segment memberships ({float(gmm_gate['boundary_share_pct']):.2f}% boundary share)."
+            f"Checked on {int(prim_s2['n_customers']):,} customers the model never saw, "
+            f"held out a full year after training."
         ),
         brier_score=round(float(prim_s2["brier_score"]), 4),
         brier_skill_score=round(float(prim_s2["brier_skill_score"]), 4),
         roc_auc=round(float(prim_s2["roc_auc"]), 4),
         ece_10_bins=round(float(prim_s2["ece_10_bins"]), 4),
+        s2_customer_count=int(prim_s2["n_customers"]),
         gmm_boundary_share_pct=round(float(gmm_gate["boundary_share_pct"]), 2),
         bootstrap_boundary_share_pct=round(float(boot_gate["boundary_share_pct"]), 2),
     )

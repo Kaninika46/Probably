@@ -21,6 +21,18 @@ from api.main import app, get_readonly_con
 client = TestClient(app)
 
 
+
+def test_headline_s2_count_comes_from_the_evaluation_table():
+    """The Overview's held-out customer count must be read from lapse_s2_eval.csv, never typed in."""
+    import pandas as pd
+    from src import config
+
+    s2 = pd.read_csv(config.TABLES_DIR / "lapse_s2_eval.csv")
+    expected_n = int(s2.loc[s2["model"] == "logistic_calibrated", "n_customers"].iloc[0])
+    headline = client.get("/api/meta").json()["headline"]
+    assert headline["s2_customer_count"] == expected_n
+    assert f"{expected_n:,}" in headline["subtitle"]
+
 def test_every_api_endpoint_returns_200():
     """Every documented GET endpoint must return HTTP 200 and non-empty data."""
     r_health = client.get("/api/health")

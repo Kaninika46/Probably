@@ -1,8 +1,8 @@
 /**
  * web/src/pages/OverviewPage.tsx
  * Page 1 (`/`): Overview page (`FRONTEND.md` section 4.1).
- * - Headline from `/api/meta` (`headline.title` & `headline.subtitle`) backed by a mini
- *   reliability chart from `/api/lapse` (`reliability_bins`) and the Brier skill score.
+ * - Headline from `/api/meta` (`headline.title` & `headline.subtitle`) with metric pills,
+ *   and a full-width reliability diagram from `/api/lapse` (`reliability_bins`) below it.
  * - Large Ask bar that navigates to `/ask` with the submitted question.
  * - Segment summary strip: 5 chips with hard count vs expected size (`GET /api/segments`).
  * - Three stat tiles: customers, segments, lapse calibration error (10-bin ECE).
@@ -11,6 +11,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Search } from "lucide-react";
+import {
+  ReliabilityBin,
+  ReliabilityChart,
+  describeTopBin,
+} from "../charts/ReliabilityChart";
 import {
   LapseResponse,
   MetaResponse,
@@ -69,22 +74,31 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     navigate("/ask");
   };
 
-  const logisticBins = (lapseData?.reliability_bins || []).filter(
-    (b) =>
-      b.model === "logistic_calibrated" &&
-      b.mean_predicted_p !== null &&
-      b.observed_lapse_rate !== null &&
-      Number(b.n_customers) > 0
-  );
+  // Non-empty bins of the primary (calibrated logistic) model on held-out S2.
+  const logisticBins: ReliabilityBin[] = (lapseData?.reliability_bins || [])
+    .filter(
+      (b) =>
+        b.model === "logistic_calibrated" &&
+        b.mean_predicted_p !== null &&
+        b.observed_lapse_rate !== null &&
+        Number(b.n_customers) > 0
+    )
+    .map((b) => ({
+      bin_lower: Number(b.bin_lower),
+      bin_upper: Number(b.bin_upper),
+      n_customers: Number(b.n_customers),
+      mean_predicted_p: Number(b.mean_predicted_p),
+      observed_lapse_rate: Number(b.observed_lapse_rate),
+    }));
+  const s2CustomerCount = meta?.headline.s2_customer_count ?? 0;
+  const topBinSentence = meta ? describeTopBin(logisticBins, s2CustomerCount) : null;
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Gate Headline + Mini Reliability Chart */}
-      <section className="card-surface grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        <div className="lg:col-span-7 flex flex-col gap-3">
-          <span className="label-caps">
-            Gate Decision Headline · Calibrated 90-Day Lapse Risk
-          </span>
+      {/* Headline finding, with the full-width reliability diagram stacked below it */}
+      <section className="card-surface flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <span className="label-caps">Headline finding</span>
           <h1 className="text-display">
             {meta?.headline.title ||
               "When we say a customer is 70% likely to lapse, about that share really do."}
@@ -94,188 +108,51 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </p>
           {meta && (
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <span
-                className="px-3 py-1 rounded-full text-small font-medium tabular-nums"
-                style={{
-                  backgroundColor: "var(--surface-2)",
-                  border: "1px solid var(--line)",
-                }}
-              >
-                Brier skill score:{" "}
-                <strong className="text-code">
-                  +{(meta.headline.brier_skill_score * 100).toFixed(2)}%
-                </strong>{" "}
-                vs base rate
-              </span>
-              <span
-                className="px-3 py-1 rounded-full text-small font-medium tabular-nums"
-                style={{
-                  backgroundColor: "var(--surface-2)",
-                  border: "1px solid var(--line)",
-                }}
-              >
-                S2 Brier:{" "}
-                <strong className="text-code">
-                  {meta.headline.brier_score.toFixed(4)}
-                </strong>
-              </span>
-              <span
-                className="px-3 py-1 rounded-full text-small font-medium tabular-nums"
-                style={{
-                  backgroundColor: "var(--surface-2)",
-                  border: "1px solid var(--line)",
-                }}
-              >
-                S2 ROC-AUC:{" "}
-                <strong className="text-code">
-                  {meta.headline.roc_auc.toFixed(4)}
-                </strong>
-              </span>
+              {[
+                {
+                  label: "Brier skill score",
+                  value: `+${(meta.headline.brier_skill_score * 100).toFixed(2)}%`,
+                  note: "vs base rate",
+                },
+                { label: "Brier score", value: meta.headline.brier_score.toFixed(4) },
+                { label: "ROC-AUC", value: meta.headline.roc_auc.toFixed(4) },
+                { label: "ECE (10 bins)", value: meta.headline.ece_10_bins.toFixed(4) },
+              ].map((pill) => (
+                <span
+                  key={pill.label}
+                  className="px-3 py-1 rounded-full text-small font-medium tabular-nums"
+                  style={{
+                    backgroundColor: "var(--surface-2)",
+                    border: "1px solid var(--line)",
+                  }}
+                >
+                  {pill.label}: <strong className="text-code">{pill.value}</strong>
+                  {pill.note ? ` ${pill.note}` : ""}
+                </span>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Mini SVG Reliability Chart */}
-        <div
-          className="lg:col-span-5 p-4 rounded-card"
-          style={{
-            backgroundColor: "var(--bg)",
-            border: "1px solid var(--line)",
-          }}
-        >
-          <div className="text-small font-semibold mb-1">
-            Predicted vs observed 90-day lapse rate on held-out S2
-          </div>
-          <div className="text-xs mb-2" style={{ color: "var(--muted)" }}>
-            Diagonal = ideal calibration · dots = 10 probability bins (ECE ={" "}
-            {meta ? meta.headline.ece_10_bins.toFixed(4) : "—"})
-          </div>
+        <div className="pt-4" style={{ borderTop: "1px solid var(--line)" }}>
+          <h2 className="text-h2">Predicted vs observed 90-day lapse on held-out customers</h2>
+          <p className="text-small mt-1 mb-3" style={{ color: "var(--muted)" }}>
+            Predictions are grouped into 10 equal-width probability bins; each dot is a non-empty bin, sized by how many customers fall in it. Hover a dot for its count.
+          </p>
           {loading ? (
             <div
-              className="h-44 rounded animate-pulse"
+              className="h-[400px] rounded animate-pulse"
               style={{ backgroundColor: "var(--surface-2)" }}
             />
           ) : (
-            <svg
-              viewBox="0 0 300 185"
-              className="w-full h-44 overflow-visible"
-              role="img"
-              aria-label="Mini reliability diagram comparing predicted 90-day lapse probability to observed S2 lapse rate"
-            >
-              {/* Axes */}
-              <line
-                x1={38}
-                y1={14}
-                x2={38}
-                y2={150}
-                stroke="var(--line)"
-                strokeWidth={1}
-              />
-              <line
-                x1={38}
-                y1={150}
-                x2={280}
-                y2={150}
-                stroke="var(--line)"
-                strokeWidth={1}
-              />
-              {/* Ideal diagonal */}
-              <line
-                x1={38}
-                y1={150}
-                x2={280}
-                y2={14}
-                stroke="var(--muted)"
-                strokeDasharray="4 4"
-                strokeWidth={1.25}
-              />
-              {/* Polyline and points */}
-              {logisticBins.length > 1 && (
-                <polyline
-                  fill="none"
-                  stroke="var(--lapse-3)"
-                  strokeWidth={2}
-                  points={logisticBins
-                    .map((b) => {
-                      const x = 38 + Number(b.mean_predicted_p) * 242;
-                      const y = 150 - Number(b.observed_lapse_rate) * 136;
-                      return `${x.toFixed(1)},${y.toFixed(1)}`;
-                    })
-                    .join(" ")}
-                />
+            <>
+              <ReliabilityChart bins={logisticBins} totalCustomers={s2CustomerCount} />
+              {topBinSentence && (
+                <p className="text-small mt-3" style={{ color: "var(--ink-2)" }}>
+                  {topBinSentence}
+                </p>
               )}
-              {logisticBins.map((b, idx) => {
-                const x = 38 + Number(b.mean_predicted_p) * 242;
-                const y = 150 - Number(b.observed_lapse_rate) * 136;
-                return (
-                  <g key={idx}>
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={4}
-                      fill="var(--lapse-3)"
-                    >
-                      <title>
-                        Bin {String(b.bin_index)}: predicted{" "}
-                        {Number(b.mean_predicted_p).toFixed(2)}, observed{" "}
-                        {Number(b.observed_lapse_rate).toFixed(2)} (n=
-                        {String(b.n_customers)})
-                      </title>
-                    </circle>
-                  </g>
-                );
-              })}
-              {/* Axis labels */}
-              <text
-                x={38}
-                y={166}
-                fontSize={10}
-                fill="var(--muted)"
-                fontFamily="JetBrains Mono"
-              >
-                0.0
-              </text>
-              <text
-                x={159}
-                y={166}
-                fontSize={10}
-                textAnchor="middle"
-                fill="var(--muted)"
-                fontFamily="Figtree"
-              >
-                Predicted P(lapse in 90d)
-              </text>
-              <text
-                x={280}
-                y={166}
-                fontSize={10}
-                textAnchor="end"
-                fill="var(--muted)"
-                fontFamily="JetBrains Mono"
-              >
-                1.0
-              </text>
-              <text
-                x={32}
-                y={150}
-                fontSize={10}
-                textAnchor="end"
-                fill="var(--muted)"
-                fontFamily="JetBrains Mono"
-              >
-                0.0
-              </text>
-              <text
-                x={32}
-                y={22}
-                fontSize={10}
-                textAnchor="end"
-                fill="var(--muted)"
-                fontFamily="JetBrains Mono"
-              >
-                1.0
-              </text>
-            </svg>
+            </>
           )}
         </div>
       </section>
@@ -462,7 +339,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             {meta ? meta.headline.ece_10_bins.toFixed(4) : "—"}
           </div>
           <p className="text-small mt-1" style={{ color: "var(--muted)" }}>
-            Evaluated once on held-out S2 (3,247 customers); Brier score{" "}
+            Evaluated once on held-out S2 (
+            {meta ? formatNumber(meta.headline.s2_customer_count) : "—"} customers); Brier score{" "}
             {meta ? meta.headline.brier_score.toFixed(4) : "—"}, skill score +
             {meta ? (meta.headline.brier_skill_score * 100).toFixed(2) : "—"}%.
           </p>

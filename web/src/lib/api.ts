@@ -27,6 +27,7 @@ export interface HeadlineInfo {
   brier_skill_score: number;
   roc_auc: number;
   ece_10_bins: number;
+  s2_customer_count: number;
   gmm_boundary_share_pct: number;
   bootstrap_boundary_share_pct: number;
 }

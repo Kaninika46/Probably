@@ -217,3 +217,16 @@
   - Migrated spaCy wheel pin test into `tests/test_setup.py`.
   - Updated `CLAUDE.md`, `README.md`, `docs/explainers/phase-8.md`, and created `docs/explainers/phase-10.md` and `docs/FRONTEND_REPORT.md`.
 - **Test suite:** all 54 tests pass cleanly in `pytest`.
+
+
+## Phase 11: Presentation polish (POLISH.md)
+
+### P1: presentation blockers (done)
+- **Light theme by default:** a first visit always opens in light mode; the theme is saved to `localStorage` only after the user toggles it. Light-mode segment colours darkened slightly (`#00876A`, `#0072B2`, `#B5608F`, `#B07800`, `#666B73`) so every hue reaches at least 3:1 contrast on white; uncertainty-map opacity floor raised from 0.25 to 0.35.
+- **Jargon removed from headers:** Segments H1 is now "Customer segments and boundary uncertainty" with a small `K = 5 · provisional` pill; the Topic eyebrows on Segments and Lapse risk are gone (the topic mapping stays on About and in the footer); the Overview eyebrow is "Headline finding".
+- **Reliability diagram:** moved below the headline at full width (400px tall), 13px tick labels, axis titles "Predicted P(lapse within 90 days)" and "Observed lapse rate", an in-plot "perfect calibration" label, dots sized by bin count with the count on hover. A caption computed from `/api/lapse` states: "The highest bin over-predicts: 2 customers predicted at 81%, observed 50%. That bin holds only 2 of 3,247 test customers, so the gap rests on very few cases."
+- **Numbers out of prose:** the Overview subtitle is one sentence ("Checked on 3,247 customers the model never saw, held out a full year after training."), with the count read from `lapse_s2_eval.csv` through a new `headline.s2_customer_count` API field; an ECE pill joins the Brier, skill-score and ROC-AUC pills. The Segments boundary share (12.50%, 495 of 3,961) and mean normalised entropy (0.2526) are now two stat tiles.
+- **Hard-coded number removed:** the S2 count `3,247` was typed into the API subtitle and the Overview ECE tile; both now read it from the evaluation table. New test `test_headline_s2_count_comes_from_the_evaluation_table`.
+- **Screenshots:** recaptured over the Chrome DevTools protocol with real-time waits, which fixes the blank Recharts plots in the earlier Lapse and Segments captures.
+- `pytest`: 56 passed. `npm run build`: no TypeScript errors.
+

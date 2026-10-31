@@ -78,28 +78,44 @@ export const SegmentsPage: React.FC<SegmentsPageProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <span className="label-caps">
-            Topic 3 (KDD Segmentation) × Topic 1 (BID Probabilistic Table)
-          </span>
-          <h1 className="text-h1 mt-1">
-            Customer Segments &amp; Boundary Uncertainty (PROVISIONAL K = 5)
-          </h1>
-        </div>
-        {segmentsData && (
-          <div className="text-small tabular-nums" style={{ color: "var(--muted)" }}>
-            Boundary share (max p &lt; 0.60):{" "}
-            <strong className="text-code" style={{ color: "var(--ink)" }}>
-              {segmentsData.boundary_share_pct.toFixed(2)}%
-            </strong>{" "}
-            ({formatNumber(segmentsData.boundary_count)} customers) · Mean entropy:{" "}
-            <strong className="text-code" style={{ color: "var(--ink)" }}>
-              {segmentsData.mean_normalised_entropy.toFixed(4)}
-            </strong>
-          </div>
-        )}
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-h1">Customer segments and boundary uncertainty</h1>
+        {/* K and covariance are still provisional (docs/DECISIONS.md), so say so quietly */}
+        <span
+          className="px-2.5 py-0.5 rounded-full text-small font-medium"
+          style={{
+            backgroundColor: "var(--surface-2)",
+            border: "1px solid var(--line)",
+            color: "var(--ink-2)",
+          }}
+        >
+          K = {meta ? meta.segments.length : "—"} · provisional
+        </span>
       </div>
+
+      {segmentsData && (
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="card-surface">
+            <div className="label-caps">Boundary customers (max p &lt; 0.60)</div>
+            <div className="text-display mt-1 tabular-nums">
+              {segmentsData.boundary_share_pct.toFixed(2)}%
+            </div>
+            <div className="text-small mt-1" style={{ color: "var(--muted)" }}>
+              {formatNumber(segmentsData.boundary_count)} of{" "}
+              {formatNumber(segmentsData.customer_count)} customers have no segment above 60%
+            </div>
+          </div>
+          <div className="card-surface">
+            <div className="label-caps">Mean normalised entropy</div>
+            <div className="text-display mt-1 tabular-nums">
+              {segmentsData.mean_normalised_entropy.toFixed(4)}
+            </div>
+            <div className="text-small mt-1" style={{ color: "var(--muted)" }}>
+              Per customer, 0 = certain of one segment and 1 = spread evenly across all segments
+            </div>
+          </div>
+        </section>
+      )}
 
       {error && <div className="card-surface text-small">{error}</div>}
 

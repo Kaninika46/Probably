@@ -4,7 +4,7 @@
  * - x-axis: days since last purchase (reversed, so recent buyers are on the right)
  * - y-axis: 9-month monetary spend on a log10 scale
  * - colour: segment (Okabe-Ito tokens)
- * - opacity: membership confidence `max_p` mapped from [0.25, 1.0]
+ * - opacity: membership confidence `max_p` mapped to alpha in [0.35, 0.95]
  * - caption: "Faded dots are customers between segments."
  * - includes method toggle (`gmm` vs `bootstrap`), hover tooltip, and click-to-open CustomerDrawer.
  */
@@ -184,10 +184,11 @@ export const UncertaintyMap: React.FC<UncertaintyMapProps> = ({
     ctx.fillText("9-month spend (£, log scale)", 0, 0);
     ctx.restore();
 
-    // Draw customer points: opacity maps max_p from [0.2, 1.0] -> [0.25, 0.95]
+    // Draw customer points: opacity maps max_p from [0.2, 1.0] -> [0.35, 0.95].
+    // The 0.35 floor keeps the least certain customers visible on a projector.
     for (const item of projected) {
       const { px, py, raw } = item;
-      const alpha = Math.max(0.25, Math.min(0.95, 0.25 + ((raw.max_p - 0.2) / 0.8) * 0.7));
+      const alpha = Math.max(0.35, Math.min(0.95, 0.35 + ((raw.max_p - 0.2) / 0.8) * 0.6));
       ctx.beginPath();
       ctx.arc(px, py, raw.max_p < 0.6 ? 3.6 : 3.2, 0, Math.PI * 2);
       ctx.fillStyle = colorMap[raw.segment] || colorMap.ink;
