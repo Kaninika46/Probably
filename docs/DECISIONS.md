@@ -13,7 +13,7 @@ This document records every human-checkpoint decision in *Probably High-Value?* 
   - **Raw net revenue (`1,067,371` rows in `raw_transactions`):** `£19,287,250.57` (includes negative cancellation and adjustment lines).
   - **Clean product sales revenue (`1,003,357` rows in `clean_sales` after Rules 1–5):** `£19,643,861.64`.
   - **Clean product sales revenue with a known `customer_id` (`776,596` rows after Rule 6):** `£17,068,582.74` (the `226,761` guest-checkout rows without a `customer_id` account for `£2,575,278.90`).
-  - **Snapshot `S3` 9-month customer revenue (`3,961` customers active in `2011-03-10` to `2011-12-09`):** `£7,004,392.66`.
+  - **Snapshot `S3` 9-month customer revenue (`3,961` customers active in `2011-03-10` to `2011-12-09`):** `£7,004,392.65`.
 
 ---
 

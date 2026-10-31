@@ -42,6 +42,19 @@ def test_all_text_files_are_valid_utf8():
         assert "\ufffd" not in content, f"Replacement character U+FFFD found in {path}"
 
 
+def test_no_mojibake_in_reports_and_docs():
+    """Verify no common mojibake sequences (Â, â€, Ã) exist in reports/tables and docs."""
+    mojibake_tokens = ["\u00c2", "\u00e2\u20ac", "\u00c3"]  # 'Â', 'â€', 'Ã'
+    text_exts = {".md", ".csv", ".json", ".txt"}
+    for folder in [config.TABLES_DIR, config.PROJECT_ROOT / "docs"]:
+        for path in folder.rglob("*"):
+            if not path.is_file() or path.suffix.lower() not in text_exts:
+                continue
+            content = path.read_text(encoding="utf-8")
+            for token in mojibake_tokens:
+                assert token not in content, f"Mojibake token {repr(token)} found in {path}"
+
+
 def test_requirements_pins_spacy_model_wheel_url():
     """`requirements.txt` must pin the exact spaCy wheel URL matching the pinned spaCy version."""
     req_text = (config.PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")

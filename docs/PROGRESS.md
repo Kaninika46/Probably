@@ -194,7 +194,7 @@
     - Raw net revenue: £19,287,250.57 across 1,067,371 rows (`raw_totals.csv`).
     - Clean product sales revenue: £19,643,861.64 across 1,003,357 rows (`clean_sales_summary.csv`).
     - Customer-identified clean revenue: £17,068,582.74 across 776,596 rows (`clean_sales_summary.csv`).
-    - S3 9-month customer revenue: £7,004,392.66 across 3,961 customers (`snapshot_summary.csv`).
+    - S3 9-month customer revenue: £7,004,392.65 across 3,961 customers (`snapshot_summary.csv`).
     - Added automated consistency test `test_revenue_numbers_are_consistent_across_tables` in `tests/test_cleaning.py`.
   - Created `docs/DECISIONS.md` documenting confirmed Phase 1 decisions and formally marking Phase 3 (`K = 5`, `covariance_type = 'spherical'`) and Phase 4 (`DEFAULT_METHOD = 'gmm'`, bootstrap stability validation) as **PROVISIONAL**.
   - Added `brier_skill_score` across all lapse evaluation modules, CSV tables, and reports: S2 `logistic_calibrated` achieves `0.1672` (+16.72% skill over the S2 base lapse rate of 42.38%), compared to `0.1225` (+12.25%) for calibrated depth-4 tree and `0.0730` (+7.30%) for the two-bin recency baseline.

@@ -27,7 +27,7 @@ Every query from the online app or NL engine runs through one of six DuckDB para
 
 **3. Compare hard vs expected segment revenue (`reports/tables/q4_expected_revenue_bootstrap.csv`, `reports/tables/q4_expected_revenue_gmm.csv`).**
 Under hard labels, a high-spending customer on the border between `Champions` (`p = 0.48`) and `Loyal` (`p = 0.52`) gives 100% of their spend to `Loyal` and £0 to `Champions`. Q4 weights each customer's spend by $p_{i,s}$:
-- Under `bootstrap`, `Champions` expected revenue is **£3,419,094.68** (48.81% of total S3 revenue £7,004,392.66), which is **+£80,613.84 higher** than their hard-label revenue (£3,338,480.84), while `Loyal` expected revenue is **£2,259,067.53** (**-£80,150.49** vs hard revenue £2,339,218.02).
+- Under `bootstrap`, `Champions` expected revenue is **£3,419,094.68** (48.81% of total S3 revenue £7,004,392.65), which is **+£80,613.84 higher** than their hard-label revenue (£3,338,480.84), while `Loyal` expected revenue is **£2,259,067.53** (**-£80,150.49** vs hard revenue £2,339,218.02).
 - Under `gmm`, `Champions` expected revenue is **£3,319,358.44** (**+£59,283.40** vs hard revenue £3,260,075.04), and `Loyal` is **£2,279,463.10** (**-£101,569.43** vs hard revenue £2,381,032.53).
 
 **4. Verify Q3 with a 10,000-world Monte Carlo sampler (`src/worlds.py`, `reports/tables/possible_worlds_q3_check.csv`).**

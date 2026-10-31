@@ -2,12 +2,34 @@
 
 Every methodological choice in *Probably High-Value?* is grounded in the published literature below. References are grouped by the pipeline component they support.
 
+> [!NOTE] Citation Verification & Audit Record
+> * **Verified against publisher record / DOI:**
+>   - Chen (2019): UCI ML Repository (DOI: 10.24432/C5CG6D)
+>   - Chen, Sain, & Guo (2012): Palgrave Macmillan / Springer (DOI: 10.1057/dbm.2012.17)
+>   - Fayyad, Piatetsky-Shapiro, & Smyth (1996): AAAI AI Magazine
+>   - Pedregosa et al. (2011): Journal of Machine Learning Research (JMLR)
+>   - Scikit-learn Documentation: Official GMM / Model Selection specification
+>   - Dalvi & Suciu (2007): VLDB Journal / Springer (DOI: 10.1007/s00778-007-0064-2)
+>   - Suciu, Olteanu, Ré, & Koch (2011): Morgan & Claypool / Springer Nature (DOI: 10.2200/S00362ED1V01Y201105DTM017)
+>   - Van den Broeck & Suciu (2017): Now Publishers (DOI: 10.1561/1900000052)
+>   - Koch (2009): Springer (*Managing and Mining Uncertain Data*, Ch. 6, pp. 149–180)
+>   - Huang, Antova, Koch, & Olteanu (2009): ACM SIGMOD 2009 (pp. 1071–1074, DOI: 10.1145/1559845.1559981)
+>   - Mastrandrea et al. (2010): IPCC AR5 Guidance Note on Treatment of Uncertainties
+>   - Kent (1964): Studies in Intelligence Vol. 8, No. 4 (CIA Historical Review Program)
+>   - Yu et al. (2018): ACL Anthology (EMNLP 2018, Spider dataset)
+>   - Li et al. (2023): NeurIPS 2023 (BIRD benchmark)
+>   - Dasgupta, Frost, Moshkovitz, & Rashtchian (2020): PMLR (ICML 2020)
+>   - Hennig (2007): Elsevier CSDA (DOI: 10.1016/j.csda.2006.11.025)
+>   - Fader, Hardie, & Lee (2005): INFORMS Marketing Science (DOI: 10.1287/mksc.1040.0098)
+> * **Not verified / Corrected:**
+>   - The previously listed entry `"Antova, L., Koch, C., & Olteanu, D. (2009). MayBMS: A system for managing large probabilistic databases"` was audited, determined to be non-existent in publication databases, and replaced with the two genuine peer-reviewed MayBMS publications: Koch (2009, Springer) and Huang, Antova, Koch, & Olteanu (2009, ACM SIGMOD).
+
 ---
 
 ## 1. Dataset
 
 - **Chen, D. [Daqing Chen] (2019).** *Online Retail II* [Dataset]. UCI Machine Learning Repository. DOI: [10.24432/C5CG6D](https://doi.org/10.24432/C5CG6D). URL: https://archive.ics.uci.edu/dataset/502/online+retail+ii (Licensed under CC BY 4.0).
-  - Companion study on the same retailer: **Chen, D., Sain, S. L., & Guo, K. (2012).** Data mining for the online retail industry: A case study of RFM model-based customer segmentation using data mining. *Journal of Database Marketing & Customer Strategy Management*, 19(3), 197–208.
+  - Companion study on the same retailer: **Chen, D., Sain, S. L., & Guo, K. (2012).** Data mining for the online retail industry: A case study of RFM model-based customer segmentation using data mining. *Journal of Database Marketing & Customer Strategy Management*, 19(3), 197–208. DOI: [10.1057/dbm.2012.17](https://doi.org/10.1057/dbm.2012.17).
   - **How we use it:** Raw transactions from both sheets (`Year 2009-2010` and `Year 2010-2011`, totalling 1,067,371 rows across 2009-12-01 to 2011-12-09) are ingested unchanged into `raw_transactions` in `data/retail.duckdb` and cleaned through a logged six-step SQL funnel (`sql/02_clean_views.sql`).
 
 ---
@@ -31,8 +53,9 @@ Every methodological choice in *Probably High-Value?* is grounded in the publish
 
 - **Dalvi, N., & Suciu, D. (2007).** Efficient query evaluation on probabilistic databases. *The VLDB Journal*, 16(4), 523–544.
 - **Suciu, D., Olteanu, D., Ré, C., & Koch, C. (2011).** *Probabilistic Databases*. Synthesis Lectures on Data Management, Morgan & Claypool Publishers.
-- **Van den Broeck, G., & Suciu, D. (2017).** Query processing on probabilistic data: A survey. *Foundations and Trends in Databases*, 7(3–4), 197–341.
-- **Antova, L., Koch, C., & Olteanu, D. (2009).** MayBMS: A system for managing large probabilistic databases (and the MayBMS Manual on `repair key` block-independent-disjoint tables and `conf()` confidence aggregation).
+- **Van den Broeck, G., & Suciu, D. (2017).** Query processing on probabilistic data: A survey. *Foundations and Trends in Databases*, 7(3–4), 197–341. DOI: [10.1561/1900000052](https://doi.org/10.1561/1900000052).
+- **Koch, C. (2009).** MayBMS: A System for Managing Large Uncertain and Probabilistic Databases. Chapter 6 in C. Aggarwal (Ed.), *Managing and Mining Uncertain Data*. Springer.
+- **Huang, J., Antova, L., Koch, C., & Olteanu, D. (2009).** MayBMS: a probabilistic database management system. *SIGMOD 2009*, pp. 1071–1074. (and the MayBMS Manual on `repair key` block-independent-disjoint tables and `conf()` confidence aggregation).
   - **How we use it:** Defines our database schema in `sql/01_schema.sql`:
     - `segment_membership` is a **Block-Independent-Disjoint (BID)** relation where each `(customer_id, snapshot, method)` block forms a mutually exclusive probability distribution over the 5 segments ($\sum p = 1.0$, analogous to `repair key` in MayBMS).
     - `lapse_risk` is a **tuple-independent** probabilistic table storing each customer's calibrated 90-day lapse probability `p_lapse_90d`.
@@ -44,7 +67,7 @@ Every methodological choice in *Probably High-Value?* is grounded in the publish
 ## 5. Verbal Probability Scales & Hedge Lexicon
 
 - **Mastrandrea, M. D., Field, C. B., Stocker, T. F., Edenhofer, O., Ebi, K. L., Frame, D. J., Held, H., Kriegler, E., Mach, K. J., Matschoss, P. R., Plattner, G.-K., Yohe, G. W., & Zwiers, F. W. (2010).** *Guidance Note for Lead Authors of the IPCC Fifth Assessment Report on Consistent Treatment of Uncertainties*. Intergovernmental Panel on Climate Change (IPCC).
-- **Kent, S. (1964).** Words of estimative probability. *Studies in Intelligence*, 8(4), 49–65. Central Intelligence Agency.
+- **Kent, S. (1964).** Words of estimative probability. *Studies in Intelligence*, Vol. 8, No. 4. Central Intelligence Agency.
   - **How we use it:** Grounds our natural-language hedge lexicon (`src/nl/lexicon.py`) in published probability scales rather than arbitrary cutoffs:
     - `possibly`, `might` $\rightarrow P \ge 0.33$ (IPCC "about as likely as not" starts at 33%)
     - `probably`, `likely` $\rightarrow P \ge 0.66$ (IPCC "likely" 66–100%; Kent "probable" 63–87%)
