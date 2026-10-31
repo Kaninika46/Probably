@@ -1,0 +1,13 @@
+# Render Blueprint specification
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: probably-high-value
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 10000

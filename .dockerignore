@@ -1,0 +1,27 @@
+# Raw datasets & temporary caches
+data/raw/
+reports/figures/
+notebooks/
+docs/screenshots/
+
+# Git & environments
+.git/
+.github/
+.venv/
+.pytest_cache/
+
+# Node build artifacts
+web/node_modules/
+*.tsbuildinfo
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Testing & development
+tests/
+pytest.ini
+run_app.bat
+run_dev.bat

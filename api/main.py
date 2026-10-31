@@ -1152,3 +1152,11 @@ def serve_spa(full_path: str):
     return {
         "message": "Probably API is running. Build `web/dist` with `npm run build` to serve the UI here."
     }
+
+if __name__ == "__main__":
+    import os
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("api.main:app", host="0.0.0.0", port=port, reload=False)
+

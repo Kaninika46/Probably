@@ -1,0 +1,25 @@
+metric,value,source
+boundary_share_gap_pct_points_gmm_minus_bootstrap,8.66,gate.csv
+boundary_share_ratio_gmm_over_bootstrap,3.26,gate.csv
+boundary_customers_gmm_minus_bootstrap,343.0,gate.csv
+s2_auc_gap_logistic_minus_two_bin,0.1019,lapse_s2_eval.csv
+s2_ece_gap_logistic_minus_two_bin,0.0137,lapse_s2_eval.csv
+s2_brier_gap_two_bin_minus_logistic,0.023,lapse_s2_eval.csv
+s2_logistic_base_rate_minus_mean_predicted,0.023,lapse_s2_eval.csv
+s2_logistic_customers_predicted_p_ge_0_7,19.0,lapse_reliability_bins_s2.csv
+uk_share_of_clean_sales_revenue_pct,85.53,eda_top_countries.csv; clean_sales_summary.csv
+s3_customers_as_pct_of_all_customers,67.69,snapshot_summary.csv; clean_sales_summary.csv
+dataset_last_invoice_year,2011.0,clean_sales_summary.csv
+dev_questions_expected_OUT_OF_SCOPE,5.0,nl_dev_results.csv
+dev_questions_expected_Q1,10.0,nl_dev_results.csv
+dev_questions_expected_Q2,2.0,nl_dev_results.csv
+dev_questions_expected_Q3,2.0,nl_dev_results.csv
+dev_questions_expected_Q4,2.0,nl_dev_results.csv
+dev_questions_expected_Q5,2.0,nl_dev_results.csv
+dev_questions_expected_Q6,3.0,nl_dev_results.csv
+dev_questions_returning_500_rows_row_limit,3.0,nl_dev_results.csv
+s3_n_countries,34.0,app/app.duckdb customers
+s3_uk_customer_share_pct,90.71,app/app.duckdb customers
+s3_min_p_lapse_90d,0.0028,app/app.duckdb lapse_risk
+s3_max_p_lapse_90d,0.7852,app/app.duckdb lapse_risk
+s3_lapse_model_version_4bb9bc2,1.0,app/app.duckdb lapse_risk

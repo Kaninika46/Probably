@@ -320,6 +320,16 @@ The backend connects exclusively to [`app/app.duckdb`](app/app.duckdb) (`1.85 MB
 
 
 
+### Cloud Deployment (Docker & Render)
+
+The project includes a multi-stage [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml) for zero-configuration container deployment on **Render**, **Hugging Face Spaces**, or **Railway**:
+
+- **Render Blueprint (Recommended):** Connect `https://github.com/Kaninika46/Probably` at [render.com](https://render.com) for automated deployment on the free tier.
+- **Local Docker:** Run `docker build -t probably-app .` and `docker run -p 8000:8000 probably-app`.
+- **Deployment Guide:** See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for step-by-step cloud hosting guides and healthcheck verification.
+
+
+
 ### Running the Test Suite
 
 
@@ -373,6 +383,8 @@ pytest -v
   - [`docs/DECISIONS.md`](docs/DECISIONS.md) — Documented Decisions Log (Phase 1 Revenue/Stock-Codes, Phase 3 K=5 Spherical Provisional, Phase 4 Gate & Frontend Migration)
 
   - [`docs/FRONTEND_REPORT.md`](docs/FRONTEND_REPORT.md) — Full Frontend Implementation Report, Screenshots & Verification Audit
+
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Cloud Deployment Guide for Render, Hugging Face Spaces, Railway & Docker
 
   - [`docs/explainers/phase-9.md`](docs/explainers/phase-9.md) — Automated Report Tables, Traceability Verification & Viva Synthesis
 
