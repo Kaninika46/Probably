@@ -142,3 +142,45 @@ def test_api_readonly_connection_refuses_writes():
             con.execute("DROP TABLE customers")
     finally:
         con.close()
+
+
+def test_meta_fields_shown_in_the_header_and_overview_are_not_null():
+    """The header count, Active S3 tile, metric pills and example chips all read /api/meta."""
+    meta = client.get("/api/meta").json()
+    assert isinstance(meta["customer_count"], int) and meta["customer_count"] > 0
+    for field in ("brier_score", "brier_skill_score", "roc_auc", "ece_10_bins", "s2_customer_count"):
+        assert meta["headline"][field] is not None, field
+    assert len(meta["example_questions"]) == 6
+
+
+def test_lapse_returns_an_ece_for_the_primary_model():
+    """The Lapse page's 10-bin ECE tile reads the calibrated logistic row of s2_metrics."""
+    s2_rows = client.get("/api/lapse").json()["s2_metrics"]
+    primary = [row for row in s2_rows if row["model"] == "logistic_calibrated"]
+    assert len(primary) == 1
+    assert primary[0]["ece_10_bins"] is not None
+
+
+def _required_ts_fields(interface_name: str) -> list[str]:
+    """Read the non-optional field names of a TypeScript interface in web/src/lib/api.ts."""
+    import re
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parents[1] / "web/src/lib/api.ts").read_text(encoding="utf-8")
+    body = re.search(rf"export interface {interface_name} \{{(.*?)\n\}}", source, re.S).group(1)
+    # "  name: type;" is required; "  name?: type;" is optional and skipped
+    return re.findall(r"^\s+(\w+):", body, re.M)
+
+
+def test_api_meta_matches_the_fields_the_frontend_reads():
+    """Every required field in the frontend's MetaResponse/HeadlineInfo types must arrive non-null.
+
+    This catches a renamed or dropped API field, which would otherwise render as "—" in the UI
+    while every other test still passes.
+    """
+    meta = client.get("/api/meta").json()
+    for field in _required_ts_fields("MetaResponse"):
+        assert meta.get(field) is not None, f"/api/meta is missing {field}"
+    for field in _required_ts_fields("HeadlineInfo"):
+        assert meta["headline"].get(field) is not None, f"/api/meta headline is missing {field}"
+

@@ -237,3 +237,9 @@
 - Screenshots recaptured at 1440×900: 7 light (including the customer drawer) and 6 dark.
 - `pytest`: 56 passed. `npm run build`: no TypeScript errors. `/api/health` returned `{"status":"ok"}`.
 
+
+### Regression check after P2 (done)
+- **Reported:** the running app showed "—" for the header customer count, the Active S3 tile and the ECE, and had no metric pills or example chips.
+- **Diagnosis:** `/api/meta` and `/api/lapse` return every field the frontend reads, and the current bundle renders them. The symptoms match the *pre-P1* bundle with `/api/meta` failing: the old ECE chart subtitle, old `"—"` fallbacks, and pills/chips wrapped in `{meta && …}`. `App.tsx` swallowed the `/api/meta` error silently. The stale bundle came from `run_app.bat`, which rebuilt only when `web/dist/index.html` was missing. Earlier in the session an older uvicorn process was also still holding port 8000.
+- **Fixes:** `run_app.bat` always runs `npm run build`, refuses to start if the build fails, and refuses to start if port 8000 is already in use. A failed `/api/meta` now shows a visible error banner instead of silent dashes.
+- **Tests:** added `test_meta_fields_shown_in_the_header_and_overview_are_not_null`, `test_lapse_returns_an_ece_for_the_primary_model` and `test_api_meta_matches_the_fields_the_frontend_reads`. The last one reads the required fields of `MetaResponse` and `HeadlineInfo` from `web/src/lib/api.ts` and checks that the API returns each one non-null. Renaming one API field fails 3 tests. `pytest`: 59 passed.

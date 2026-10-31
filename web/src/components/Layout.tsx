@@ -26,6 +26,7 @@ import { MetaResponse, formatNumber } from "../lib/api";
 
 interface LayoutProps {
   meta: MetaResponse | null;
+  metaError: string | null;
   theme: "light" | "dark";
   onToggleTheme: () => void;
   recentQuestions: string[];
@@ -44,6 +45,7 @@ const NAV_ITEMS = [
 
 export const Layout: React.FC<LayoutProps> = ({
   meta,
+  metaError,
   theme,
   onToggleTheme,
   recentQuestions,
@@ -191,6 +193,16 @@ export const Layout: React.FC<LayoutProps> = ({
         {/* Main Content Container (max-width 1200px) */}
         <main className="flex-1 p-6 md:p-8 overflow-x-hidden">
           <div className="max-w-[1200px] mx-auto flex flex-col gap-6">
+            {metaError && (
+              <div
+                role="alert"
+                className="card-surface text-small"
+                style={{ borderColor: "var(--lapse-3)", color: "var(--ink)" }}
+              >
+                Could not load dataset metadata from <code>/api/meta</code> ({metaError}).
+                Figures that depend on it show "—". Restart the app with <code>run_app.bat</code>.
+              </div>
+            )}
             {children}
           </div>
         </main>

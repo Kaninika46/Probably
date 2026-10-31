@@ -22,6 +22,7 @@ const INITIAL_QUESTION =
 
 export const App: React.FC = () => {
   const [meta, setMeta] = useState<MetaResponse | null>(null);
+  const [metaError, setMetaError] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const params = new URLSearchParams(window.location.search);
     const qTheme = params.get("theme");
@@ -73,8 +74,9 @@ export const App: React.FC = () => {
     api
       .getMeta()
       .then((res) => setMeta(res))
-      .catch(() => {
-        // Fallback handled gracefully by components
+      .catch((err: Error) => {
+        // Say so loudly: without /api/meta the header and Overview can only show dashes
+        setMetaError(err.message || "Could not load /api/meta.");
       });
   }, []);
 
@@ -94,6 +96,7 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <Layout
         meta={meta}
+        metaError={metaError}
         theme={theme}
         onToggleTheme={toggleTheme}
         recentQuestions={recentQuestions}
